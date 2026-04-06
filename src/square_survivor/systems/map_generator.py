@@ -55,9 +55,9 @@ class MapGenerator:
                 r = obs.copy()
                 r.x -= camera_offset[0]
                 r.y -= camera_offset[1]
-                # White 60% opacity (153/255)
-                pygame.draw.rect(alpha_surf, (255, 255, 255, 153), r)
-                pygame.draw.rect(alpha_surf, (255, 255, 255, 200), r, 2)
+                # White 60% opacity fill and 200/255 border
+                pygame.draw.rect(alpha_surf, OBSTACLE_COLOR, r)
+                pygame.draw.rect(alpha_surf, OBSTACLE_BORDER, r, 2)
         screen.blit(alpha_surf, (0, 0))
 
 if __name__ == "__main__":
