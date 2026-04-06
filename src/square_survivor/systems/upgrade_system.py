@@ -78,6 +78,13 @@ class Endurance(Upgrade):
         player.hp += 20
 
 @UpgradeManager.register
+class HealthRegen(Upgrade):
+    name = "Health Regen"
+    description = "Health Regen +1/sec"
+    def apply(self, player: Player):
+        player.health_regen += 1
+
+@UpgradeManager.register
 class Overcharge(Upgrade):
     name = "Overcharge"
     description = "Attack Delay -15%"

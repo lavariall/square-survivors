@@ -318,6 +318,13 @@ class PlayState(GameState):
         
         info = self.font.render(f"Lvl: {self.player.level}  Kills: {self.player.kills}", True, TEXT_LIGHT)
         screen.blit(info, (WINDOW_WIDTH - 200, 20))
+        
+        # Remaining Time Timer
+        rem_time = max(0.0, TOTAL_TIME_SEC - self.time_survived)
+        mins = int(rem_time // 60)
+        secs = int(rem_time % 60)
+        timer_surf = self.font.render(f"{mins}:{secs:02d}", True, TEXT_LIGHT)
+        screen.blit(timer_surf, timer_surf.get_rect(center=(WINDOW_WIDTH // 2, 30)))
 
 if __name__ == "__main__":
     import math

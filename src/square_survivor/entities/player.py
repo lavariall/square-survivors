@@ -11,6 +11,7 @@ class Player(Entity):
         self.base_speed = 200
         self.max_hp = 100
         self.hp = 100
+        self.health_regen = 0
         self.max_stamina = 100
         self.stamina = 100
         self.stamina_regen = 20
@@ -18,6 +19,7 @@ class Player(Entity):
         self.xp = 0
         self.xp_required = 10
         self.kills = 0
+        self.upgrade_choices = 3
         
         # Combat / Dash
         self.dash_cooldown_max = 1.5
@@ -58,8 +60,10 @@ class Player(Entity):
         if self.explosion_effect_timer > 0:
             self.explosion_effect_timer -= dt
             
-        # Stamina Regen
+        # Stamina & Health Regen
         self.stamina = min(self.max_stamina, self.stamina + self.stamina_regen * dt)
+        if self.health_regen > 0:
+            self.hp = min(self.max_hp, self.hp + self.health_regen * dt)
 
         # Movement
         self.x += dx * self.base_speed * dt
