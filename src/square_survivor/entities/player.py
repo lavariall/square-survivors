@@ -20,6 +20,7 @@ class Player(Entity):
         self.xp_required = 10
         self.kills = 0
         self.upgrade_choices = 3
+        self.level_ups_pending = 0
         
         # Combat / Dash
         self.dash_cooldown_max = 1.5

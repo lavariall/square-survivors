@@ -13,7 +13,10 @@ from .systems.wave_manager import WaveManager
 from .systems.upgrade_system import UpgradeManager
 
 from .ui.components import Button, ProgressBar, InputBox
-from .constants import WINDOW_WIDTH, WINDOW_HEIGHT, TOTAL_TIME_SEC, MAP_SIZE, PRIMARY, DANGER, TEXT_LIGHT
+from .constants import (WINDOW_WIDTH, WINDOW_HEIGHT, 
+                        XP_COLOR, TILE_SIZE, MAP_SIZE, OBSTACLE_DENSITY,
+                        DIFFICULTY_SETTINGS, MAX_XP_ORBS, XP_ORB_LIFESPAN, TEXT_LIGHT,
+                        PRIMARY, DANGER, TOTAL_TIME_SEC, DIFF_PRIORITY)
 import json
 import os
 
@@ -21,14 +24,29 @@ class MenuState(GameState):
     def __init__(self, engine):
         super().__init__(engine)
         self.font = pygame.font.SysFont("Arial", 48, bold=True)
-        self.btn_font = pygame.font.SysFont("Arial", 24, bold=True)
+        self.btn_font = pygame.font.SysFont("Arial", 22, bold=True)
         self.hs_font = pygame.font.SysFont("Arial", 18)
         
-        btn_w, btn_h = 200, 60
-        self.start_btn = Button(
-            WINDOW_WIDTH//2 - btn_w//2, WINDOW_HEIGHT//2 - 60, btn_w, btn_h,
-            "Start Game", self.btn_font, self.start_game
-        )
+        btn_w, btn_h = 160, 50
+        spacing = 20
+        difficulties = ["Easy", "Normal", "Hard", "Ultra"]
+        self.diff_buttons = []
+        
+        from .constants import DIFFICULTY_SETTINGS
+        self.difficulties = difficulties
+        for i, diff in enumerate(difficulties):
+            bx = WINDOW_WIDTH//2 - (btn_w * 2 + spacing * 1.5)//2 + (i % 2) * (btn_w + spacing)
+            by = WINDOW_HEIGHT//2 - 40 + (i // 2) * (btn_h + spacing)
+            
+            def make_start(d=diff):
+                return lambda: self.start_game(d)
+                
+            self.diff_buttons.append(Button(
+                bx, by, btn_w, btn_h,
+                diff, self.btn_font, make_start()
+            ))
+
+        self.selected_index = 0
         self.load_highscores()
         
     def load_highscores(self):
@@ -40,13 +58,26 @@ class MenuState(GameState):
             except:
                 pass
 
-    def start_game(self):
-        self.engine.change_state(PlayState(self.engine))
+    def start_game(self, difficulty="Normal"):
+        self.engine.change_state(PlayState(self.engine, difficulty))
 
     def handle_event(self, event: pygame.event.Event):
-        self.start_btn.handle_event(event)
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            self.start_game()
+        for i, btn in enumerate(self.diff_buttons):
+            btn.handle_event(event)
+            if btn.hovered and event.type == pygame.MOUSEMOTION:
+                self.selected_index = i
+        
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_w:
+                if self.selected_index >= 2: self.selected_index -= 2
+            elif event.key == pygame.K_s:
+                if self.selected_index <= 1: self.selected_index += 2
+            elif event.key == pygame.K_a:
+                if self.selected_index > 0: self.selected_index -= 1
+            elif event.key == pygame.K_d:
+                if self.selected_index < len(self.diff_buttons) - 1: self.selected_index += 1
+            elif event.key == pygame.K_SPACE:
+                self.start_game(self.difficulties[self.selected_index])
 
     def update(self, dt: float):
         pass
@@ -54,13 +85,16 @@ class MenuState(GameState):
     def draw(self, screen: pygame.Surface):
         title = self.font.render("Square Survivor", True, PRIMARY)
         screen.blit(title, title.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT//3 - 40)))
-        self.start_btn.draw(screen)
+        for i, btn in enumerate(self.diff_buttons):
+            btn.hovered = (i == self.selected_index)
+            btn.draw(screen)
+
 
         # Draw Leaderboard at the bottom
         hs_title = self.btn_font.render("Top Survivors", True, TEXT_LIGHT)
-        screen.blit(hs_title, hs_title.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT//2 + 40)))
+        screen.blit(hs_title, hs_title.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT//2 + 100)))
         
-        start_y = WINDOW_HEIGHT//2 + 80
+        start_y = WINDOW_HEIGHT//2 + 130
         if not self.highscores:
             empty = self.hs_font.render("No records yet!", True, PRIMARY)
             screen.blit(empty, empty.get_rect(center=(WINDOW_WIDTH//2, start_y)))
@@ -68,16 +102,21 @@ class MenuState(GameState):
             for i, score in enumerate(self.highscores):
                 s_name = score.get("name", "Unknown")
                 s_kills = score.get("kills", 0)
+                s_level = score.get("level", 1)
                 s_won = score.get("won", False)
                 s_time = score.get("time", 0.0)
+                s_diff = score.get("difficulty", "Normal")
+                
                 out_time = "VICTORY" if s_won else f"{int(s_time//60)}:{int(s_time%60):02d}"
                 color = PRIMARY if s_won else DANGER
                 
-                row = self.hs_font.render(f"{i+1}. {s_name} - {s_kills} Kills - {out_time}", True, color)
+                # Format: 1. Name (Easy) - Lvl 10 - 100 Kills - 5:20
+                row = self.hs_font.render(f"{i+1}. {s_name} ({s_diff}) - Lvl {s_level} - {s_kills} Kills - {out_time}", True, color)
                 screen.blit(row, row.get_rect(center=(WINDOW_WIDTH//2, start_y + i * 25)))
 
         # Confirmation hint
-        hint = self.hs_font.render("Press [SPACE] to Start Game", True, PRIMARY)
+        hint_text = "Select Difficulty [W, A, S, D] and Confirm [SPACE] to Start Game"
+        hint = self.hs_font.render(hint_text, True, PRIMARY)
         screen.blit(hint, hint.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 30)))
 
 class LevelUpState(GameState):
@@ -123,6 +162,7 @@ class LevelUpState(GameState):
 
     def select_upgrade(self, upgrade):
         upgrade.apply(self.play_state.player)
+        self.play_state.player.level_ups_pending -= 1
         self.engine.change_state(self.play_state)
 
     def handle_event(self, event: pygame.event.Event):
@@ -176,11 +216,12 @@ class LevelUpState(GameState):
 
 
 class GameOverState(GameState):
-    def __init__(self, engine, player, won, time_survived):
+    def __init__(self, engine, player, won, time_survived, difficulty):
         super().__init__(engine)
         self.player = player
         self.won = won
         self.time_survived = time_survived
+        self.difficulty = difficulty
         
         self.font = pygame.font.SysFont("Arial", 64, bold=True)
         self.info_font = pygame.font.SysFont("Arial", 24)
@@ -205,9 +246,17 @@ class GameOverState(GameState):
             "kills": self.player.kills,
             "level": self.player.level,
             "time": self.time_survived,
-            "won": self.won
+            "won": self.won,
+            "difficulty": self.difficulty
         })
-        scores.sort(key=lambda x: x["kills"], reverse=True)
+        
+        from .constants import DIFF_PRIORITY
+        # Sorting Hierarchy: 1. Difficulty, 2. Level, 3. Victory
+        scores.sort(key=lambda x: (
+            DIFF_PRIORITY.get(x.get("difficulty", "Normal"), 0),
+            x.get("level", 0),
+            1 if x.get("won", False) else 0
+        ), reverse=True)
         scores = scores[:7]
         
         try:
@@ -250,13 +299,17 @@ class GameOverState(GameState):
         screen.blit(hint, hint.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 40)))
 
 class PlayState(GameState):
-    def __init__(self, engine):
+    def __init__(self, engine, difficulty="Normal"):
         super().__init__(engine)
         self.player = Player()
         self.enemies: List[Enemy] = []
         self.xp_orbs: List[XPOrb] = []
         
-        self.map_generator = MapGenerator()
+        self.difficulty = difficulty
+        from .constants import DIFFICULTY_SETTINGS, OBSTACLE_DENSITY
+        self.difficulty_settings = DIFFICULTY_SETTINGS.get(difficulty, DIFFICULTY_SETTINGS["Normal"])
+        
+        self.map_generator = MapGenerator(density=self.difficulty_settings.get("obstacle_density", OBSTACLE_DENSITY))
         self.map_generator.generate((MAP_SIZE//2, MAP_SIZE//2))
         
         self.time_survived = 0.0
@@ -266,7 +319,7 @@ class PlayState(GameState):
         self.font = pygame.font.SysFont("Arial", 24, bold=True)
         self.hp_bar = ProgressBar(20, 20, 200, 20, DANGER)
         self.stamina_bar = ProgressBar(20, 50, 200, 20, PRIMARY)
-        self.xp_bar = ProgressBar(20, WINDOW_HEIGHT - 40, WINDOW_WIDTH - 40, 10, (252, 238, 10))
+        self.xp_bar = ProgressBar(20, WINDOW_HEIGHT - 40, WINDOW_WIDTH - 40, 10, XP_COLOR)
 
     def handle_event(self, event: pygame.event.Event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
@@ -276,14 +329,12 @@ class PlayState(GameState):
         self.time_survived += dt
         if self.time_survived >= TOTAL_TIME_SEC:
             # Win logic
-            self.engine.change_state(GameOverState(self.engine, self.player, True, self.time_survived))
+            self.engine.change_state(GameOverState(self.engine, self.player, True, self.time_survived, self.difficulty))
             return
 
         self.player.update(dt)
         self.map_generator.compute_collisions(self.player)
 
-        viewport = (self.camera_offset[0], self.camera_offset[1], WINDOW_WIDTH, WINDOW_HEIGHT)
-        WaveManager.spawn_wave(self.time_survived, viewport, self.player, self.enemies)
 
         # Update enemies
         for e in self.enemies:
@@ -303,13 +354,27 @@ class PlayState(GameState):
             if e.hp <= 0:
                 e.active = False
                 self.player.kills += 1
+                
+                # Choose orb: Inactive -> New (if under cap) -> Oldest Active (force recycle)
+                xp_val = 2 if e.is_elite else 1
                 xp = next((x for x in self.xp_orbs if not x.active), None)
+                
                 if not xp:
-                    xp = XPOrb(e.x, e.y, 1)
-                    self.xp_orbs.append(xp)
-                else:
-                    xp.x, xp.y = e.x, e.y
+                    if len(self.xp_orbs) < MAX_XP_ORBS:
+                        xp = XPOrb(e.x, e.y, xp_val)
+                        self.xp_orbs.append(xp)
+                    else:
+                        # Force recycle the oldest active one (lowest timer)
+                        xp = min(self.xp_orbs, key=lambda x: x.timer)
+                
+                if xp:
+                    import random
+                    jitter = 15
+                    xp.x, xp.y = e.x + random.randint(-jitter, jitter), e.y + random.randint(-jitter, jitter)
+                    xp.value = xp_val
                     xp.active = True
+                    xp.timer = XP_ORB_LIFESPAN
+                
                 continue
 
             # Player takes damage
@@ -318,12 +383,15 @@ class PlayState(GameState):
                     self.player.hp -= e.damage
                     self.player.invuln_timer = 0.5
                     if self.player.hp <= 0:
-                        self.engine.change_state(GameOverState(self.engine, self.player, False, self.time_survived))
+                        self.engine.change_state(GameOverState(self.engine, self.player, False, self.time_survived, self.difficulty))
                         return
 
         # XP Update
         for xp in self.xp_orbs:
             if not xp.active: continue
+            xp.update(dt) # Update lifespan
+            if not xp.active: continue # Check if it just died
+            
             dist = math.hypot(self.player.x - xp.x, self.player.y - xp.y)
             if dist < self.player.pickup_radius:
                 dx, dy = (self.player.x - xp.x)/dist, (self.player.y - xp.y)/dist
@@ -333,11 +401,24 @@ class PlayState(GameState):
                 if dist < self.player.size:
                     xp.active = False
                     self.player.xp += xp.value * self.player.experience_booster
-                    if self.player.xp >= self.player.xp_required:
+                    while self.player.xp >= self.player.xp_required:
                         self.player.xp -= self.player.xp_required
+                        self.player.level_ups_pending += 1
                         self.player.level += 1
                         self.player.xp_required = int(10 * (self.player.level ** 1.5))
-                        self.engine.change_state(LevelUpState(self.engine, self))
+        
+        # Cleanup inactive orbs periodically
+        if len(self.xp_orbs) > 1000:
+            self.xp_orbs = [x for x in self.xp_orbs if x.active]
+
+        # Handle Level Up Transition at the end of the update
+        if self.player.level_ups_pending > 0:
+            self.engine.change_state(LevelUpState(self.engine, self))
+            return 
+
+        # Spawn new enemies at the end of the frame
+        viewport = (self.camera_offset[0], self.camera_offset[1], WINDOW_WIDTH, WINDOW_HEIGHT)
+        WaveManager.spawn_wave(self.time_survived, viewport, self.player, self.enemies, self.difficulty_settings)
 
     def draw(self, screen: pygame.Surface):
         # Update camera (simple follow)
@@ -368,6 +449,11 @@ class PlayState(GameState):
         self.hp_bar.draw(screen)
         self.stamina_bar.draw(screen)
         self.xp_bar.draw(screen)
+        
+        # XP Text
+        xp_text = f"{int(self.player.xp)} / {self.player.xp_required}"
+        xp_surf = self.font.render(xp_text, True, TEXT_LIGHT)
+        screen.blit(xp_surf, (WINDOW_WIDTH - 20 - xp_surf.get_width(), WINDOW_HEIGHT - 70))
         
         info = self.font.render(f"Lvl: {self.player.level}  Kills: {self.player.kills}", True, TEXT_LIGHT)
         screen.blit(info, (WINDOW_WIDTH - 200, 20))

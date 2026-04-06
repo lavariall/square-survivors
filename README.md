@@ -7,9 +7,10 @@ Square Survivor is a modular, Object-Oriented 2D roguelike survival game built w
 | Action | Gameplay Key | Menu Key |
 | :--- | :--- | :--- |
 | **Move / Navigate** | `W, A, S, D` | `W, A, S, D` |
-| **Dash / Confirm** | `SPACE` | `SPACE` / `ENTER` (Save Score) |
+| **Dash / Confirm** | `SPACE` | `SPACE` / `ENTER` |
 | **Selection** | Mouse Move | Mouse Hover / Keyboard focus |
 | **Action** | Auto-Attack | Left Click / Key Submit |
+| **Difficulty** | - | Select [W, A, S, D] & Confirm [SPACE] |
 
 ---
 
@@ -47,15 +48,32 @@ classDiagram
         +update(dt)
         +draw(screen, offset)
     }
-    class Player { }
-    class Enemy { }
-    class XPOrb { }
+    class Player { 
+        +int level_ups_pending
+    }
+    class Enemy {
+        +bool is_elite
+        +int size
+    }
+    class XPOrb { 
+        +float timer
+        +int value
+    }
     
     Entity <|-- Player
     Entity <|-- Enemy
     Entity <|-- XPOrb
+```
 
     %% Systems
+    class WaveManager {
+        +spawn_wave(time, viewport, player, enemies, difficulty)
+    }
+    class DifficultySettings {
+        +float spawn_mult
+        +float elite_chance_max
+        +int endgame_time
+    }
     class Upgrade {
         <<abstract>>
         +str name
@@ -145,6 +163,26 @@ If you want to modify the display:
 1. Open `src/square_survivor/game_states.py`.
 2. Locate the `LevelUpState` class.
 3. The layout logic is handled in `__init__`, where `grid_start_y` and `row_start_x` calculate centering based on the number of choices.
+
+### 4. Adjusting Difficulty & Elites
+
+The game features a scaling difficulty system defined in `src/square_survivor/constants.py`. Each difficulty level (Easy, Normal, Hard, Ultra) affects spawn rates and how quickly **Elite Enemies** (Orange squares) appear.
+
+**Configuring a Difficulty:**
+```python
+DIFFICULTY_SETTINGS = {
+    "Normal": {
+        "spawn_mult": 1.0,         # Multiplier for enemy count
+        "elite_chance_max": 0.6,   # Max % of elites in endgame
+        "endgame_time": 120        # Seconds of high-intensity spawning
+    }
+}
+```
+
+**Elite Enemy Properties:**
+- **Visuals**: Orange (`ELITE_COLOR`), 30px size.
+- **HP**: 2x Normal HP.
+- **XP**: Drops 2 XP orbs (Double Reward).
 
 ## 🚀 Building & Packaging
 

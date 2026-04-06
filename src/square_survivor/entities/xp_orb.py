@@ -1,14 +1,18 @@
 import pygame
 from .base_entity import Entity
-from ..constants import XP_COLOR
+from ..constants import XP_COLOR, XP_ORB_LIFESPAN
 
 class XPOrb(Entity):
     def __init__(self, x: float, y: float, value: float):
         super().__init__(x, y, 8)
         self.value = value
+        self.timer = XP_ORB_LIFESPAN
 
     def update(self, dt: float):
-        pass
+        if not self.active: return
+        self.timer -= dt
+        if self.timer <= 0:
+            self.active = False
 
     def draw(self, screen: pygame.Surface, camera_offset: tuple[float, float]):
         if not self.active: return
