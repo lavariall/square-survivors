@@ -1,6 +1,17 @@
-# Square Survivor
-
 Square Survivor is a modular, Object-Oriented 2D roguelike survival game built with Python and `pygame-ce`. The initial HTML5 prototype was completely decoupled and restructured natively for scalable, standalone Windows `.exe` packaging.
+
+---
+
+## 🕹️ Controls
+
+| Action | Gameplay Key | Menu Key |
+| :--- | :--- | :--- |
+| **Move / Navigate** | `W, A, S, D` | `W, A, S, D` |
+| **Dash / Confirm** | `SPACE` | `SPACE` |
+| **Selection** | Mouse Move | Mouse Hover |
+| **Action** | Auto-Attack | Left Click |
+
+---
 
 ## 📐 Architecture & Classes
 
@@ -49,13 +60,18 @@ classDiagram
         <<abstract>>
         +str name
         +str description
+        +int likelihood
+        +bool _available
+        +enable()
+        +disable()
+        +is_available(player)
         +apply(player)
     }
     class WideArea { }
     class BlastCore { }
     class UpgradeManager {
         +register(cls)
-        +get_random_choices(count)
+        +get_random_choices(player, count)
     }
     
     Upgrade <|-- WideArea
@@ -77,9 +93,10 @@ To add a new power-up variation:
 1. Open up `src/square_survivor/systems/upgrade_system.py`.
 2. Create a new class that inherits from `Upgrade`.
 3. Give it a `name`, a `description` property, and implement what happens inside `apply()`.
-4. Drop the `@UpgradeManager.register` decorator exactly above it.
+4. (Optional) Set a custom `likelihood` value (default is 100).
+5. Drop the `@UpgradeManager.register` decorator exactly above it.
 
-**Example implementation for "Invincibility Buffer":**
+**Example implementation for "Iron Skin":**
 ```python
 # src/square_survivor/systems/upgrade_system.py
 
@@ -87,37 +104,47 @@ To add a new power-up variation:
 class IronSkin(Upgrade):
     name = "Iron Skin"
     description = "Permanent +2.0s Invulnerability per Hit"
+    likelihood = 50  # 2x rarer than default upgrades
     
     def apply(self, player: Player):
-        # We assume you added 'base_invuln_time' to player.py!
         player.base_invuln_time += 2.0 
 ```
-That's it. Next time you play, the system automatically pulls this upgrade into the randomized pool.
+
+### 2. Balancing & Availability
+
+Upgrades can be dynamically enabled or disabled, and their rarity can be tuned.
+
+**Likelihood (Weights):**
+The `likelihood` attribute determines how often an upgrade appears. 
+- `likelihood = 100` (Default)
+- `likelihood = 10` (Rare, 10x less likely)
+- `likelihood = 500` (Common, 5x more likely)
+
+**Enable/Disable Logic:**
+You can remove an upgrade from the selection pool programmatically. For example, to disable an upgrade after it has been picked enough times:
+```python
+    def apply(self, player: Player):
+        player.some_stat += 1
+        if player.some_stat >= 5:
+            self.disable()  # Removes this upgrade from future level-up menus
+```
 
 ---
 
-### 2. Modifying the Upgrade Screen (Level-Up UI)
+### 3. Modifying the Upgrade Screen (Level-Up UI)
 
 The visual elements of the upgrade interface live inside the **`LevelUpState`** class, located inside `src/square_survivor/game_states.py`.
 
-If you want to modify what the Level-Up screen displays (for instance, changing the texts, adjusting colors, or injecting additional logic):
+The UI now supports a **Dynamic Grid Layout** that automatically:
+- Respects the player's `upgrade_choices` count.
+- Handles up to 7 upgrades simultaneously.
+- Wraps buttons after 4 items per row and centers them horizontally and vertically.
+- **Keyboard Support**: Fully navigable using `W, A, S, D` with `SPACE` to confirm.
+
+If you want to modify the display:
 1. Open `src/square_survivor/game_states.py`.
 2. Locate the `LevelUpState` class.
-3. Scroll down to the `draw(self, screen)` method.
-
-**Modifying the display texts:**
-Inside `draw()`, you'll see:
-```python
-title = self.font.render("LEVEL UP!", True, PRIMARY)
-```
-Change `"LEVEL UP!"` to whatever you wish. You can also instantiate additional fonts in the `__init__` constructor of `LevelUpState` to draw secondary info (like "Choose wisely..." below the title).
-
-**Modifying the Upgrade Buttons:**
-The buttons for each upgrade choice are created in the `LevelUpState.__init__()` loop:
-```python
-self.buttons.append(Button(bx, by, btn_w, btn_h, upgrade.name, self.btn_font, ...))
-```
-If you wish to display the `upgrade.description` *inside* the button or below it, you can easily modify the `Button` class inside `src/square_survivor/ui/components.py` to accept and render a secondary description string or draw the `upgrade.description` below the buttons directly inside `LevelUpState.draw()`! Note that if you make structural changes to the Button UI, you will have to adjust `btn_h` to fit your new descriptions properly.
+3. The layout logic is handled in `__init__`, where `grid_start_y` and `row_start_x` calculate centering based on the number of choices.
 
 ## 🚀 Building & Packaging
 

@@ -45,6 +45,8 @@ class MenuState(GameState):
 
     def handle_event(self, event: pygame.event.Event):
         self.start_btn.handle_event(event)
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            self.start_game()
 
     def update(self, dt: float):
         pass
@@ -74,6 +76,10 @@ class MenuState(GameState):
                 row = self.hs_font.render(f"{i+1}. {s_name} - {s_kills} Kills - {out_time}", True, color)
                 screen.blit(row, row.get_rect(center=(WINDOW_WIDTH//2, start_y + i * 25)))
 
+        # Confirmation hint
+        hint = self.hs_font.render("Press [SPACE] to Start Game", True, PRIMARY)
+        screen.blit(hint, hint.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 30)))
+
 class LevelUpState(GameState):
     def __init__(self, engine, play_state):
         super().__init__(engine)
@@ -82,19 +88,34 @@ class LevelUpState(GameState):
         self.btn_font = pygame.font.SysFont("Arial", 18, bold=True)
         self.desc_font = pygame.font.SysFont("Arial", 14)
         
-        self.choices = UpgradeManager.get_random_choices(3)
+        self.choices = UpgradeManager.get_random_choices(self.play_state.player, self.play_state.player.upgrade_choices)
         self.buttons = []
+        self.selected_index = 0
         
+        # Centered Grid layout
         btn_w, btn_h = 200, 80
-        spacing = 20
-        total_w = len(self.choices) * btn_w + (len(self.choices) - 1) * spacing
-        start_x = WINDOW_WIDTH//2 - total_w//2
+        spacing_x, spacing_y = 20, 70
+        max_cols = 4
+        
+        num_choices = len(self.choices)
+        if num_choices == 0:
+            return
+
+        num_rows = math.ceil(num_choices / max_cols)
+        total_grid_h = num_rows * btn_h + (num_rows - 1) * spacing_y
+        grid_start_y = (WINDOW_HEIGHT - total_grid_h) // 2 + 50
         
         for i, upgrade in enumerate(self.choices):
-            bx = start_x + i * (btn_w + spacing)
-            by = WINDOW_HEIGHT//2
+            row = i // max_cols
+            col = i % max_cols
             
-            # Using default args in lambda to capture current iteration variable
+            items_in_row = min(max_cols, num_choices - row * max_cols)
+            row_w = items_in_row * btn_w + (items_in_row - 1) * spacing_x
+            row_start_x = (WINDOW_WIDTH - row_w) // 2
+            
+            bx = row_start_x + col * (btn_w + spacing_x)
+            by = grid_start_y + row * (btn_h + spacing_y)
+            
             def make_callback(upg=upgrade):
                 return lambda: self.select_upgrade(upg)
                 
@@ -105,8 +126,27 @@ class LevelUpState(GameState):
         self.engine.change_state(self.play_state)
 
     def handle_event(self, event: pygame.event.Event):
-        for btn in self.buttons:
+        for i, btn in enumerate(self.buttons):
             btn.handle_event(event)
+            if btn.hovered and event.type == pygame.MOUSEMOTION:
+                self.selected_index = i
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_w:
+                if self.selected_index >= 4:
+                    self.selected_index -= 4
+            elif event.key == pygame.K_s:
+                if self.selected_index + 4 < len(self.buttons):
+                    self.selected_index += 4
+            elif event.key == pygame.K_a:
+                if self.selected_index > 0:
+                    self.selected_index -= 1
+            elif event.key == pygame.K_d:
+                if self.selected_index < len(self.buttons) - 1:
+                    self.selected_index += 1
+            elif event.key == pygame.K_SPACE:
+                if 0 <= self.selected_index < len(self.choices):
+                    self.select_upgrade(self.choices[self.selected_index])
 
     def update(self, dt: float):
         pass
@@ -125,9 +165,14 @@ class LevelUpState(GameState):
         screen.blit(title, title.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT//3)))
         
         for i, btn in enumerate(self.buttons):
+            btn.hovered = (i == self.selected_index)
             btn.draw(screen)
             desc_surf = self.desc_font.render(self.choices[i].description, True, TEXT_LIGHT)
             screen.blit(desc_surf, desc_surf.get_rect(center=(btn.rect.centerx, btn.rect.bottom + 20)))
+
+        # Confirmation hint
+        hint = self.btn_font.render("Press [SPACE] to Confirm Choice", True, PRIMARY)
+        screen.blit(hint, hint.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 40)))
 
 
 class GameOverState(GameState):
@@ -157,6 +202,7 @@ class GameOverState(GameState):
         scores.append({
             "name": name,
             "kills": self.player.kills,
+            "level": self.player.level,
             "time": self.time_survived,
             "won": self.won
         })
