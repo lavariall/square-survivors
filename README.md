@@ -7,9 +7,9 @@ Square Survivor is a modular, Object-Oriented 2D roguelike survival game built w
 | Action | Gameplay Key | Menu Key |
 | :--- | :--- | :--- |
 | **Move / Navigate** | `W, A, S, D` | `W, A, S, D` |
-| **Dash / Confirm** | `SPACE` | `SPACE` |
-| **Selection** | Mouse Move | Mouse Hover |
-| **Action** | Auto-Attack | Left Click |
+| **Dash / Confirm** | `SPACE` | `SPACE` / `ENTER` (Save Score) |
+| **Selection** | Mouse Move | Mouse Hover / Keyboard focus |
+| **Action** | Auto-Attack | Left Click / Key Submit |
 
 ---
 

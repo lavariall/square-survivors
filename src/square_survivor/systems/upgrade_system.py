@@ -160,6 +160,14 @@ class DashMaster(Upgrade):
         player.dash_distance *= 1.2
 
 @UpgradeManager.register
+class ExperienceBooster(Upgrade):
+    name = "Experience Booster"
+    description = "Experience Booster +25%"
+    likelihood = 200
+    def apply(self, player: Player):
+        player.experience_booster *= 1.25
+
+@UpgradeManager.register
 class IncreaseUpgradeChoices(Upgrade):
     name = "Increase Upgrade Choices"
     description = "Increase Upgrade Choices +1"

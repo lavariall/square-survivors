@@ -186,6 +186,7 @@ class GameOverState(GameState):
         self.info_font = pygame.font.SysFont("Arial", 24)
         
         self.input_box = InputBox(WINDOW_WIDTH//2 - 100, WINDOW_HEIGHT//2, 200, 40, self.info_font)
+        self.input_box.active = True
         self.save_btn = Button(WINDOW_WIDTH//2 - 100, WINDOW_HEIGHT//2 + 60, 200, 50, "Save & Restart", self.info_font, self.save_score)
         
     def save_score(self):
@@ -207,7 +208,7 @@ class GameOverState(GameState):
             "won": self.won
         })
         scores.sort(key=lambda x: x["kills"], reverse=True)
-        scores = scores[:5]
+        scores = scores[:7]
         
         try:
             with open("highscores.json", "w") as f:
@@ -220,6 +221,8 @@ class GameOverState(GameState):
     def handle_event(self, event):
         self.input_box.handle_event(event)
         self.save_btn.handle_event(event)
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+            self.save_score()
         
     def update(self, dt):
         pass
@@ -241,6 +244,10 @@ class GameOverState(GameState):
         
         self.input_box.draw(screen)
         self.save_btn.draw(screen)
+        
+        # Keyboard hint
+        hint = self.info_font.render("Press [ENTER] to Save & Restart", True, PRIMARY)
+        screen.blit(hint, hint.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 40)))
 
 class PlayState(GameState):
     def __init__(self, engine):
@@ -325,7 +332,7 @@ class PlayState(GameState):
                 
                 if dist < self.player.size:
                     xp.active = False
-                    self.player.xp += xp.value
+                    self.player.xp += xp.value * self.player.experience_booster
                     if self.player.xp >= self.player.xp_required:
                         self.player.xp -= self.player.xp_required
                         self.player.level += 1

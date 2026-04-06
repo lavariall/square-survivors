@@ -35,6 +35,7 @@ class Player(Entity):
         self.explosion_knockback = 300
         
         self.pickup_radius = 100
+        self.experience_booster = 1.0
         self.invuln_timer = 0.0
 
     def update(self, dt: float):
