@@ -98,6 +98,13 @@ class Magnetism(Upgrade):
     def apply(self, player: Player):
         player.pickup_radius *= 1.5
 
+@UpgradeManager.register
+class DashMaster(Upgrade):
+    name = "Dash Master"
+    description = "Dash Distance +20%"
+    def apply(self, player: Player):
+        player.dash_distance *= 1.2
+
 if __name__ == "__main__":
     player = Player()
     choices = UpgradeManager.get_random_choices(2)

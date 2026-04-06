@@ -261,11 +261,12 @@ class PlayState(GameState):
 
             # Player takes damage
             if e.rect.colliderect(player_rect):
-                self.player.hp -= e.damage
-                self.player.invuln_timer = 0.5
-                if self.player.hp <= 0:
-                    self.engine.change_state(GameOverState(self.engine, self.player, False, self.time_survived))
-                    return
+                if self.player.invuln_timer <= 0:
+                    self.player.hp -= e.damage
+                    self.player.invuln_timer = 0.5
+                    if self.player.hp <= 0:
+                        self.engine.change_state(GameOverState(self.engine, self.player, False, self.time_survived))
+                        return
 
         # XP Update
         for xp in self.xp_orbs:

@@ -23,7 +23,7 @@ class Player(Entity):
         self.dash_cooldown_max = 1.5
         self.dash_cooldown = 0.0
         self.dash_cost = 30
-        self.dash_distance = 600
+        self.dash_distance = 100
         
         self.explosion_radius = 150
         self.explosion_damage = 50
