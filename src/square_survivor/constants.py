@@ -21,25 +21,25 @@ DIFFICULTY_SETTINGS = {
         "spawn_mult": 0.7,
         "elite_chance_max": 0.0,
         "endgame_time": 120,
-        "obstacle_density": 0.03
+        "obstacle_density": 0.005
     },
     "Normal": {
         "spawn_mult": 1.0,
         "elite_chance_max": 0.6,
         "endgame_time": 120,
-        "obstacle_density": 0.05
+        "obstacle_density": 0.015
     },
     "Hard": {
         "spawn_mult": 1.4,
         "elite_chance_max": 1.0,
         "endgame_time": 120,
-        "obstacle_density": 0.08
+        "obstacle_density": 0.02
     },
     "Ultra": {
         "spawn_mult": 1.4,
         "elite_chance_max": 1.0,
         "endgame_time": 240,
-        "obstacle_density": 0.12
+        "obstacle_density": 0.03
     }
 }
 
@@ -49,7 +49,7 @@ DIFF_PRIORITY = {"Easy": 0, "Normal": 1, "Hard": 2, "Ultra": 3}
 TOTAL_TIME_SEC = 10 * 60
 MAP_SIZE = 4000
 TILE_SIZE = 50
-OBSTACLE_DENSITY = 0.05
+OBSTACLE_DENSITY = 0.005  # is this still used at all?
 MAX_XP_ORBS = 1000
 XP_ORB_LIFESPAN = 10.0 # seconds
 
