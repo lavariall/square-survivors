@@ -1,6 +1,6 @@
 import pygame
 from .base_entity import Entity
-from ..constants import XP_COLOR, XP_ORB_LIFESPAN
+from ..constants import XP_ORB_COLOR, XP_ORB_LIFESPAN
 
 class XPOrb(Entity):
     def __init__(self, x: float, y: float, value: float):
@@ -18,7 +18,7 @@ class XPOrb(Entity):
         if not self.active: return
         render_x = int(self.x - camera_offset[0])
         render_y = int(self.y - camera_offset[1])
-        pygame.draw.circle(screen, XP_COLOR, (render_x, render_y), self.size // 2)
+        pygame.draw.circle(screen, XP_ORB_COLOR, (render_x, render_y), self.size // 2)
 
 if __name__ == "__main__":
     orb = XPOrb(100, 100, 5)

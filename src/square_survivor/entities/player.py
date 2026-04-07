@@ -1,7 +1,7 @@
 import pygame
 from math import hypot
 from .base_entity import Entity
-from ..constants import PRIMARY, MAP_SIZE
+from ..constants import PLAYER_COLOR, MAP_SIZE
 
 class Player(Entity):
     def __init__(self):
@@ -107,10 +107,10 @@ class Player(Entity):
         if self.invuln_timer > 0 and (pygame.time.get_ticks() // 100) % 2 == 0:
             return
 
-        pygame.draw.rect(screen, PRIMARY, (render_x, render_y, self.size, self.size))
+        pygame.draw.rect(screen, PLAYER_COLOR, (render_x, render_y, self.size, self.size))
 
         if self.explosion_effect_timer > 0:
-            pygame.draw.circle(screen, PRIMARY, (render_x + int(self.size/2), render_y + int(self.size/2)), int(self.explosion_radius), 2)
+            pygame.draw.circle(screen, PLAYER_COLOR, (render_x + int(self.size/2), render_y + int(self.size/2)), int(self.explosion_radius), 2)
 
 if __name__ == "__main__":
     p = Player()

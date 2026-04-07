@@ -14,9 +14,9 @@ from .systems.upgrade_system import UpgradeManager
 
 from .ui.components import Button, ProgressBar, InputBox
 from .constants import (WINDOW_WIDTH, WINDOW_HEIGHT, 
-                        XP_COLOR, TILE_SIZE, MAP_SIZE, OBSTACLE_DENSITY,
+                        XP_ORB_COLOR, TILE_SIZE, MAP_SIZE, OBSTACLE_DENSITY,
                         DIFFICULTY_SETTINGS, MAX_XP_ORBS, XP_ORB_LIFESPAN, TEXT_LIGHT,
-                        PRIMARY, DANGER, TOTAL_TIME_SEC, DIFF_PRIORITY)
+                        PLAYER_COLOR, ENEMY_COLOR, TOTAL_TIME_SEC, DIFF_PRIORITY)
 import json
 import os
 
@@ -83,7 +83,7 @@ class MenuState(GameState):
         pass
 
     def draw(self, screen: pygame.Surface):
-        title = self.font.render("Square Survivor", True, PRIMARY)
+        title = self.font.render("Square Survivor", True, PLAYER_COLOR)
         screen.blit(title, title.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT//3 - 40)))
         for i, btn in enumerate(self.diff_buttons):
             btn.hovered = (i == self.selected_index)
@@ -96,7 +96,7 @@ class MenuState(GameState):
         
         start_y = WINDOW_HEIGHT//2 + 130
         if not self.highscores:
-            empty = self.hs_font.render("No records yet!", True, PRIMARY)
+            empty = self.hs_font.render("No records yet!", True, PLAYER_COLOR)
             screen.blit(empty, empty.get_rect(center=(WINDOW_WIDTH//2, start_y)))
         else:
             for i, score in enumerate(self.highscores):
@@ -108,7 +108,7 @@ class MenuState(GameState):
                 s_diff = score.get("difficulty", "Normal")
                 
                 out_time = "VICTORY" if s_won else f"{int(s_time//60)}:{int(s_time%60):02d}"
-                color = PRIMARY if s_won else DANGER
+                color = PLAYER_COLOR if s_won else ENEMY_COLOR
                 
                 # Format: 1. Name (Easy) - Lvl 10 - 100 Kills - 5:20
                 row = self.hs_font.render(f"{i+1}. {s_name} ({s_diff}) - Lvl {s_level} - {s_kills} Kills - {out_time}", True, color)
@@ -116,7 +116,7 @@ class MenuState(GameState):
 
         # Confirmation hint
         hint_text = "Select Difficulty [W, A, S, D] and Confirm [SPACE] to Start Game"
-        hint = self.hs_font.render(hint_text, True, PRIMARY)
+        hint = self.hs_font.render(hint_text, True, PLAYER_COLOR)
         screen.blit(hint, hint.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 30)))
 
 class LevelUpState(GameState):
@@ -201,7 +201,7 @@ class LevelUpState(GameState):
         overlay.fill((0, 0, 0))
         screen.blit(overlay, (0, 0))
         
-        title = self.font.render("LEVEL UP!", True, PRIMARY)
+        title = self.font.render("LEVEL UP!", True, PLAYER_COLOR)
         screen.blit(title, title.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT//3)))
         
         for i, btn in enumerate(self.buttons):
@@ -211,7 +211,7 @@ class LevelUpState(GameState):
             screen.blit(desc_surf, desc_surf.get_rect(center=(btn.rect.centerx, btn.rect.bottom + 20)))
 
         # Confirmation hint
-        hint = self.btn_font.render("Press [SPACE] to Confirm Choice", True, PRIMARY)
+        hint = self.btn_font.render("Press [SPACE] to Confirm Choice", True, PLAYER_COLOR)
         screen.blit(hint, hint.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 40)))
 
 
@@ -278,7 +278,7 @@ class GameOverState(GameState):
         
     def draw(self, screen):
         title_str = "VICTORY!" if self.won else "YOU DIED"
-        color = PRIMARY if self.won else DANGER
+        color = PLAYER_COLOR if self.won else ENEMY_COLOR
         title = self.font.render(title_str, True, color)
         screen.blit(title, title.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT//4)))
         
@@ -295,7 +295,7 @@ class GameOverState(GameState):
         self.save_btn.draw(screen)
         
         # Keyboard hint
-        hint = self.info_font.render("Press [ENTER] to Save & Restart", True, PRIMARY)
+        hint = self.info_font.render("Press [ENTER] to Save & Restart", True, PLAYER_COLOR)
         screen.blit(hint, hint.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 40)))
 
 class PlayState(GameState):
@@ -317,9 +317,9 @@ class PlayState(GameState):
         
         # UI
         self.font = pygame.font.SysFont("Arial", 24, bold=True)
-        self.hp_bar = ProgressBar(20, 20, 200, 20, DANGER)
-        self.stamina_bar = ProgressBar(20, 50, 200, 20, PRIMARY)
-        self.xp_bar = ProgressBar(20, WINDOW_HEIGHT - 40, WINDOW_WIDTH - 40, 10, XP_COLOR)
+        self.hp_bar = ProgressBar(20, 20, 200, 20, ENEMY_COLOR)
+        self.stamina_bar = ProgressBar(20, 50, 200, 20, PLAYER_COLOR)
+        self.xp_bar = ProgressBar(20, WINDOW_HEIGHT - 40, WINDOW_WIDTH - 40, 10, XP_ORB_COLOR)
 
     def handle_event(self, event: pygame.event.Event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:

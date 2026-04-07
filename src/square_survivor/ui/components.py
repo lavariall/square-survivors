@@ -1,6 +1,6 @@
 import pygame
 from typing import Callable, Tuple
-from ..constants import PRIMARY, PRIMARY_DIM, TEXT_LIGHT, PANEL_BG, PANEL_BORDER
+from ..constants import PLAYER_COLOR, PLAYER_COLOR_DIM, TEXT_LIGHT, PANEL_BG, PANEL_BORDER
 
 class Button:
     def __init__(self, x: int, y: int, w: int, h: int, text: str, font: pygame.font.Font, on_click: Callable):
@@ -21,19 +21,19 @@ class Button:
         if self.hovered:
             # Glow effect
             glow_surf = pygame.Surface((self.rect.w + 20, self.rect.h + 20), pygame.SRCALPHA)
-            pygame.draw.rect(glow_surf, (PRIMARY[0], PRIMARY[1], PRIMARY[2], 100), glow_surf.get_rect(), border_radius=12)
+            pygame.draw.rect(glow_surf, (PLAYER_COLOR[0], PLAYER_COLOR[1], PLAYER_COLOR[2], 100), glow_surf.get_rect(), border_radius=12)
             screen.blit(glow_surf, (self.rect.x - 10, self.rect.y - 10))
             
-            pygame.draw.rect(screen, PRIMARY, self.rect, border_radius=8)
+            pygame.draw.rect(screen, PLAYER_COLOR, self.rect, border_radius=8)
             text_surf = self.font.render(self.text, True, (0, 0, 0))
         else:
             # Alpha background
             btn_surf = pygame.Surface((self.rect.w, self.rect.h), pygame.SRCALPHA)
-            pygame.draw.rect(btn_surf, (PRIMARY[0], PRIMARY[1], PRIMARY[2], 76), btn_surf.get_rect(), border_radius=8)
+            pygame.draw.rect(btn_surf, (PLAYER_COLOR[0], PLAYER_COLOR[1], PLAYER_COLOR[2], 76), btn_surf.get_rect(), border_radius=8)
             screen.blit(btn_surf, self.rect.topleft)
             
-            pygame.draw.rect(screen, PRIMARY, self.rect, 2, border_radius=8)
-            text_surf = self.font.render(self.text, True, PRIMARY)
+            pygame.draw.rect(screen, PLAYER_COLOR, self.rect, 2, border_radius=8)
+            text_surf = self.font.render(self.text, True, PLAYER_COLOR)
             
         tr = text_surf.get_rect(center=self.rect.center)
         screen.blit(text_surf, tr)
@@ -85,7 +85,7 @@ class InputBox:
                         self.text += event.unicode
 
     def draw(self, screen):
-        color = PRIMARY if self.active else PRIMARY_DIM
+        color = PLAYER_COLOR if self.active else PLAYER_COLOR_DIM
         # Draw background and border
         pygame.draw.rect(screen, (10, 10, 15), self.rect, border_radius=4)
         pygame.draw.rect(screen, color, self.rect, 2, border_radius=4)

@@ -1,7 +1,7 @@
 import pygame
 from math import hypot
 from .base_entity import Entity
-from ..constants import DANGER
+from ..constants import ENEMY_COLOR
 
 class Enemy(Entity):
     def __init__(self, x: float, y: float, hp: float, speed: float, damage: float, is_elite: bool = False):
@@ -30,7 +30,7 @@ class Enemy(Entity):
         render_x = int(self.x - camera_offset[0] - self.size/2)
         render_y = int(self.y - camera_offset[1] - self.size/2)
         
-        color = ELITE_COLOR if self.is_elite else DANGER
+        color = ELITE_COLOR if self.is_elite else ENEMY_COLOR
         pygame.draw.rect(screen, color, (render_x, render_y, self.size, self.size))
         
         if self.is_elite:
