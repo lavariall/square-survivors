@@ -63,7 +63,6 @@ classDiagram
     Entity <|-- Player
     Entity <|-- Enemy
     Entity <|-- XPOrb
-```
 
     %% Systems
     class WaveManager {
