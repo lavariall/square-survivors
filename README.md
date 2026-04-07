@@ -173,7 +173,8 @@ DIFFICULTY_SETTINGS = {
     "Normal": {
         "spawn_mult": 1.0,         # Multiplier for enemy count
         "elite_chance_max": 0.6,   # Max % of elites in endgame
-        "endgame_time": 120        # Seconds of high-intensity spawning
+        "endgame_time": 120,       # Seconds of high-intensity spawning
+        "obstacle_density": 0.005  # % of map covered in obstacles
     }
 }
 ```
