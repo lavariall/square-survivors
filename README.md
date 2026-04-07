@@ -186,8 +186,24 @@ DIFFICULTY_SETTINGS = {
 
 ## 🚀 Building & Packaging
 
+### Windows (.exe)
 Whenever you make code adjustments, simply execute the builder script from a powershell terminal:
 ```powershell
-.venv\Scripts\python.exe build_exe.py
+.\.venv\Scripts\python.exe build_exe.py
 ```
-This triggers PyInstaller, wraps everything neatly, and produces your distribution bundle in `dist/SquareSurvivor.exe`.
+This produces your distribution bundle in `dist/SquareSurvivor.exe`.
+
+### Linux (Standalone Binary)
+To build for Linux (Compatible with **Linux Mint 22+**, Ubuntu, and Debian), ensure **Docker Desktop** is running and execute:
+```powershell
+.\build_linux.ps1
+```
+This will:
+1. Build a Linux-native environment in Docker.
+2. Compile a standalone `SquareSurvivor` binary (no extension).
+3. Export the file to `dist/linux/SquareSurvivor`.
+
+**To run on Linux**:
+1. Copy the file to your Linux machine.
+2. In a terminal, run `chmod +x SquareSurvivor`.
+3. Launch with `./SquareSurvivor`.

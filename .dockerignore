@@ -1,0 +1,7 @@
+.venv/
+.git/
+build/
+dist/
+__pycache__/
+*.exe
+# Don't ignore the spec file as it's needed for the Docker build
