@@ -150,7 +150,7 @@ You can remove an upgrade from the selection pool programmatically. For example,
 
 ### 3. Modifying the Upgrade Screen (Level-Up UI)
 
-The visual elements of the upgrade interface live inside the **`LevelUpState`** class, located inside `src/square_survivor/game_states.py`.
+The visual elements of the upgrade interface live inside the **`LevelUpState`** class, located inside `src/square_survivor/states/level_up.py`.
 
 The UI now supports a **Dynamic Grid Layout** that automatically:
 - Respects the player's `upgrade_choices` count.
@@ -159,7 +159,7 @@ The UI now supports a **Dynamic Grid Layout** that automatically:
 - **Keyboard Support**: Fully navigable using `W, A, S, D` with `SPACE` to confirm.
 
 If you want to modify the display:
-1. Open `src/square_survivor/game_states.py`.
+1. Open `src/square_survivor/states/level_up.py`.
 2. Locate the `LevelUpState` class.
 3. The layout logic is handled in `__init__`, where `grid_start_y` and `row_start_x` calculate centering based on the number of choices.
 

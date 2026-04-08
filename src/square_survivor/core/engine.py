@@ -1,6 +1,6 @@
 import pygame
 from typing import Optional
-from .states import GameState
+from ..states import GameState
 from .input_system import InputSystem
 from ..constants import WINDOW_WIDTH, WINDOW_HEIGHT, FPS, BG_COLOR
 

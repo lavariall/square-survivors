@@ -1,6 +1,6 @@
 import pygame
 from .core.engine import Engine
-from .game_states import MenuState
+from .states import MenuState
 
 def main():
     engine = Engine()
