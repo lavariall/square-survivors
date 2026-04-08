@@ -22,9 +22,7 @@ MANIFEST
 # Environments
 .env
 .user/
-# Track agent rules and workflows but ignore scratch and logs
-.agents/scratch/
-.agents/logs/
+.agents/
 
 # IDEs
 .vscode/
