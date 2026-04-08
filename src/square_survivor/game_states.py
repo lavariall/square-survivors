@@ -4,6 +4,7 @@ import math
 from typing import List
 
 from .core.states import GameState
+from .core.input_system import InputAction
 from .entities.player import Player
 from .entities.enemy import Enemy
 from .entities.xp_orb import XPOrb
@@ -66,21 +67,18 @@ class MenuState(GameState):
             btn.handle_event(event)
             if btn.hovered and event.type == pygame.MOUSEMOTION:
                 self.selected_index = i
-        
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_w:
-                if self.selected_index >= 2: self.selected_index -= 2
-            elif event.key == pygame.K_s:
-                if self.selected_index <= 1: self.selected_index += 2
-            elif event.key == pygame.K_a:
-                if self.selected_index > 0: self.selected_index -= 1
-            elif event.key == pygame.K_d:
-                if self.selected_index < len(self.diff_buttons) - 1: self.selected_index += 1
-            elif event.key == pygame.K_SPACE:
-                self.start_game(self.difficulties[self.selected_index])
 
     def update(self, dt: float):
-        pass
+        if self.engine.input.was_just_pressed(InputAction.UP):
+            if self.selected_index >= 2: self.selected_index -= 2
+        elif self.engine.input.was_just_pressed(InputAction.DOWN):
+            if self.selected_index <= 1: self.selected_index += 2
+        elif self.engine.input.was_just_pressed(InputAction.LEFT):
+            if self.selected_index > 0: self.selected_index -= 1
+        elif self.engine.input.was_just_pressed(InputAction.RIGHT):
+            if self.selected_index < len(self.diff_buttons) - 1: self.selected_index += 1
+        elif self.engine.input.was_just_pressed(InputAction.CONFIRM):
+            self.start_game(self.difficulties[self.selected_index])
 
     def draw(self, screen: pygame.Surface):
         title = self.font.render("Square Survivor", True, PLAYER_COLOR)
@@ -171,25 +169,22 @@ class LevelUpState(GameState):
             if btn.hovered and event.type == pygame.MOUSEMOTION:
                 self.selected_index = i
 
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_w:
-                if self.selected_index >= 4:
-                    self.selected_index -= 4
-            elif event.key == pygame.K_s:
-                if self.selected_index + 4 < len(self.buttons):
-                    self.selected_index += 4
-            elif event.key == pygame.K_a:
-                if self.selected_index > 0:
-                    self.selected_index -= 1
-            elif event.key == pygame.K_d:
-                if self.selected_index < len(self.buttons) - 1:
-                    self.selected_index += 1
-            elif event.key == pygame.K_SPACE:
-                if 0 <= self.selected_index < len(self.choices):
-                    self.select_upgrade(self.choices[self.selected_index])
-
     def update(self, dt: float):
-        pass
+        if self.engine.input.was_just_pressed(InputAction.UP):
+            if self.selected_index >= 4:
+                self.selected_index -= 4
+        elif self.engine.input.was_just_pressed(InputAction.DOWN):
+            if self.selected_index + 4 < len(self.buttons):
+                self.selected_index += 4
+        elif self.engine.input.was_just_pressed(InputAction.LEFT):
+            if self.selected_index > 0:
+                self.selected_index -= 1
+        elif self.engine.input.was_just_pressed(InputAction.RIGHT):
+            if self.selected_index < len(self.buttons) - 1:
+                self.selected_index += 1
+        elif self.engine.input.was_just_pressed(InputAction.CONFIRM):
+            if 0 <= self.selected_index < len(self.choices):
+                self.select_upgrade(self.choices[self.selected_index])
 
     def draw(self, screen: pygame.Surface):
         # Draw background game state behind
@@ -270,7 +265,7 @@ class GameOverState(GameState):
     def handle_event(self, event):
         self.input_box.handle_event(event)
         self.save_btn.handle_event(event)
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+        if self.engine.input.was_just_pressed(InputAction.CONFIRM):
             self.save_score()
         
     def update(self, dt):
@@ -322,8 +317,8 @@ class PlayState(GameState):
         self.xp_bar = ProgressBar(20, WINDOW_HEIGHT - 40, WINDOW_WIDTH - 40, 10, XP_ORB_COLOR)
 
     def handle_event(self, event: pygame.event.Event):
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            self.player.attempt_dash(0.016)
+        if self.engine.input.was_just_pressed(InputAction.DASH):
+            self.player.attempt_dash(0.016, self.engine.input)
 
     def update(self, dt: float):
         self.time_survived += dt
@@ -332,7 +327,7 @@ class PlayState(GameState):
             self.engine.change_state(GameOverState(self.engine, self.player, True, self.time_survived, self.difficulty))
             return
 
-        self.player.update(dt)
+        self.player.update(dt, self.engine.input)
         self.map_generator.compute_collisions(self.player)
 
 

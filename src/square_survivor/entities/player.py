@@ -39,13 +39,10 @@ class Player(Entity):
         self.experience_booster = 1.0
         self.invuln_timer = 0.0
 
-    def update(self, dt: float):
-        keys = pygame.key.get_pressed()
-        dx, dy = 0, 0
-        if keys[pygame.K_w] or keys[pygame.K_UP]: dy -= 1
-        if keys[pygame.K_s] or keys[pygame.K_DOWN]: dy += 1
-        if keys[pygame.K_a] or keys[pygame.K_LEFT]: dx -= 1
-        if keys[pygame.K_d] or keys[pygame.K_RIGHT]: dx += 1
+    def update(self, dt: float, input_system):
+        # Use centralized movement vector
+        move_vec = input_system.get_movement_vector()
+        dx, dy = move_vec.x, move_vec.y
 
         length = hypot(dx, dy)
         if length > 0:
@@ -75,17 +72,13 @@ class Player(Entity):
         self.x = max(self.size/2, min(MAP_SIZE - self.size/2, self.x))
         self.y = max(self.size/2, min(MAP_SIZE - self.size/2, self.y))
 
-    def attempt_dash(self, dt: float):
-        keys = pygame.key.get_pressed()
+    def attempt_dash(self, dt: float, input_system):
         if self.dash_cooldown <= 0 and self.stamina >= self.dash_cost:
             self.stamina -= self.dash_cost
             self.dash_cooldown = self.dash_cooldown_max
             
-            dx, dy = 0, 0
-            if keys[pygame.K_w] or keys[pygame.K_UP]: dy -= 1
-            if keys[pygame.K_s] or keys[pygame.K_DOWN]: dy += 1
-            if keys[pygame.K_a] or keys[pygame.K_LEFT]: dx -= 1
-            if keys[pygame.K_d] or keys[pygame.K_RIGHT]: dx += 1
+            move_vec = input_system.get_movement_vector()
+            dx, dy = move_vec.x, move_vec.y
             
             if dx == 0 and dy == 0:
                 dx = 1 # Default
