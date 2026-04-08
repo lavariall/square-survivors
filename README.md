@@ -207,3 +207,22 @@ This will:
 1. Copy the file to your Linux machine.
 2. In a terminal, run `chmod +x SquareSurvivor`.
 3. Launch with `./SquareSurvivor`.
+
+---
+
+## 🌳 Git Workflow & Policies
+
+This project is hosted at: [https://github.com/lavariall/square-survivors.git](https://github.com/lavariall/square-survivors.git)
+
+To maintain a stable codebase, all developers must adhere to the following workflow:
+
+1. **No Direct Commits to `main`**: The `main` branch is protected and reserved for stable, tested releases.
+2. **Branch Check**: Always verify your current branch before committing.
+   ```powershell
+   git branch
+   ```
+3. **Feature Branching**: Create a new branch for every feature or fix.
+   ```powershell
+   git checkout -b feature/your-feature-name
+   ```
+4. **Pull Requests**: Pull requests must be reviewed and passing all checks before being merged into `main`.
