@@ -28,12 +28,22 @@ class Player(Entity):
         self.dash_cost = 30
         self.dash_distance = 100
         
+        # Weapons Group
+        self.weapons = pygame.sprite.Group()
+        
+        # Explosion Stats
         self.explosion_radius = 150
         self.explosion_damage = 50
         self.explosion_cooldown_max = 2.0
         self.explosion_timer = 0.0
-        self.explosion_effect_timer = 0.0
         self.explosion_knockback = 300
+        
+        # Saturn Square Stats
+        self.saturn_squares_count = 3
+        self.saturn_squares_hp = 50
+        self.saturn_squares_damage = 10
+        self.saturn_squares_lifespan_active = True
+        self.saturn_squares_rotation_speed = 180.0
         
         self.pickup_radius = 100
         self.experience_booster = 1.0
@@ -56,8 +66,6 @@ class Player(Entity):
             self.invuln_timer -= dt
             
         self.explosion_timer -= dt
-        if self.explosion_effect_timer > 0:
-            self.explosion_effect_timer -= dt
             
         # Stamina & Health Regen
         self.stamina = min(self.max_stamina, self.stamina + self.stamina_regen * dt)
@@ -101,9 +109,6 @@ class Player(Entity):
             return
 
         pygame.draw.rect(screen, PLAYER_COLOR, (render_x, render_y, self.size, self.size))
-
-        if self.explosion_effect_timer > 0:
-            pygame.draw.circle(screen, PLAYER_COLOR, (render_x + int(self.size/2), render_y + int(self.size/2)), int(self.explosion_radius), 2)
 
 if __name__ == "__main__":
     p = Player()
