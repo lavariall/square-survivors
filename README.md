@@ -10,7 +10,7 @@ Square Survivor is a modular, Object-Oriented 2D roguelike survival game built w
 | **Dash / Confirm** | `SPACE` | `SPACE` / `ENTER` | **X Button** (PS4) / **A Button** (Xbox) |
 | **Selection** | Mouse | Mouse Hover | Joystick Movement |
 | **Action** | Auto-Attack | Left Click / Key Submit | Confirm Button |
-| **Back** | `ESC` | `ESC` | - |
+| **Pause / Back** | `ESC` | `ESC` | **Circle (PS4)** / **B (Xbox)** |
 
 ---
 
@@ -34,10 +34,12 @@ classDiagram
     class MenuState { }
     class PlayState { }
     class LevelUpState { }
+    class PauseState { }
     
     GameState <|-- MenuState
     GameState <|-- PlayState
     GameState <|-- LevelUpState
+    GameState <|-- PauseState
     Engine --> GameState : manages
     
     %% Entities

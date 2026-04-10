@@ -43,6 +43,11 @@ class PlayState(GameState):
             self.player.attempt_dash(0.016, self.engine.input)
 
     def update(self, dt: float):
+        if self.engine.input.was_just_pressed(InputAction.PAUSE):
+            from .pause import PauseState
+            self.engine.change_state(PauseState(self.engine, self))
+            return
+
         self.time_survived += dt
         if self.time_survived >= TOTAL_TIME_SEC:
             # Win logic
@@ -61,7 +66,7 @@ class PlayState(GameState):
                 self.map_generator.compute_collisions(e)
 
         # Combat Process
-        CombatSystem.process_explosions(self.player, self.enemies)
+        CombatSystem.process_weapons(self.player, self.enemies, dt)
         
         # Enemy Death / XP Spawning / Damage
         player_rect = self.player.get_rect()
@@ -86,6 +91,7 @@ class PlayState(GameState):
                         xp = min(self.xp_orbs, key=lambda x: x.timer)
                 
                 if xp:
+                    # todo: please add a comment what jitter does
                     jitter = 15
                     xp.x, xp.y = e.x + random.randint(-jitter, jitter), e.y + random.randint(-jitter, jitter)
                     xp.value = xp_val

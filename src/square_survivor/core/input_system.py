@@ -11,6 +11,7 @@ class InputAction(Enum):
     DASH = auto()
     BACK = auto()
     QUIT = auto()
+    PAUSE = auto()
 
 class InputSystem:
     def __init__(self):
@@ -26,13 +27,14 @@ class InputSystem:
             pygame.K_RIGHT: InputAction.RIGHT,
             pygame.K_SPACE: InputAction.CONFIRM,
             pygame.K_RETURN: InputAction.CONFIRM,
-            pygame.K_ESCAPE: InputAction.BACK,
+            pygame.K_ESCAPE: InputAction.PAUSE,
         }
         
         # Playstation 4 Controller Mappings (User verified)
         # Button 0 is X (Cross)
         self.joy_button_map: Dict[int, InputAction] = {
             0: InputAction.CONFIRM,
+            1: InputAction.PAUSE,
         }
         
         # State tracking
