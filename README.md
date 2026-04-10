@@ -47,11 +47,14 @@ classDiagram
         <<abstract>>
         +float x
         +float y
+        +pygame.Surface image
+        +pygame.Rect rect
         +update(dt)
         +draw(screen, offset)
     }
     class Player { 
         +int level_ups_pending
+        +pygame.sprite.Group weapons
     }
     class Enemy {
         +bool is_elite
@@ -65,6 +68,21 @@ classDiagram
     Entity <|-- Player
     Entity <|-- Enemy
     Entity <|-- XPOrb
+
+    %% Weapons
+    class Weapon {
+        <<abstract>>
+        +float damage
+        +float knockback
+        +bool active
+        +knockback_logic(enemy)
+    }
+    class SaturnSquare { }
+    class Explosion { }
+
+    Entity <|-- Weapon
+    Weapon <|-- SaturnSquare
+    Weapon <|-- Explosion
 
     %% Systems
     class WaveManager {
@@ -109,7 +127,7 @@ The game is designed to be easily extensible. All major game systems run autonom
 Upgrades use an **Automatic Registry Pattern**. You do not need to wire them into the game's core loop or states manually! 
 
 To add a new power-up variation:
-1. Open up `src/square_survivor/systems/upgrade_system.py`.
+1. Identify the relevant category file in `src/square_survivor/systems/upgrade_system/` (e.g., `player_upgrades.py`).
 2. Create a new class that inherits from `Upgrade`.
 3. Give it a `name`, a `description` property, and implement what happens inside `apply()`.
 4. (Optional) Set a custom `likelihood` value (default is 100).
@@ -117,7 +135,7 @@ To add a new power-up variation:
 
 **Example implementation for "Iron Skin":**
 ```python
-# src/square_survivor/systems/upgrade_system.py
+# src/square_survivor/systems/upgrade_system/player_upgrades.py
 
 @UpgradeManager.register
 class IronSkin(Upgrade):
@@ -185,6 +203,23 @@ DIFFICULTY_SETTINGS = {
 - **Visuals**: Orange (`ELITE_COLOR`), 30px size.
 - **HP**: 2x Normal HP.
 - **XP**: Drops 2 XP orbs (Double Reward).
+
+### 5. Adding a New Weapon
+Weapons are modular entities that handle their own logic and collision interaction.
+
+1. Create a new file in `src/square_survivor/entities/weapons/`.
+2. Inherit from `Weapon` (found in `base_weapon.py`).
+3. Implement `update()` and `draw()`.
+4. Instantiate the weapon and add it to `player.weapons` (a `pygame.sprite.Group`) in `PlayState` or a custom system.
+
+**Example Skeleton:**
+```python
+@UpgradeManager.register
+class MyWeapon(Weapon):
+    def update(self, dt):
+        # Movement/Logic here
+        super().update(dt) # Handles lifespan/active state
+```
 
 ## 🚀 Building & Packaging
 
