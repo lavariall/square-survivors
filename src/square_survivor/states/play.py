@@ -10,6 +10,8 @@ from ..entities.xp_orb import XPOrb
 from ..systems.map_generator import MapGenerator
 from ..systems.combat_system import CombatSystem
 from ..systems.wave_manager import WaveManager
+from ..entities.weapons.explosion import Explosion
+from ..entities.weapons.saturn_square import SaturnSquare
 from ..ui.components import ProgressBar
 from ..constants import (WINDOW_WIDTH, WINDOW_HEIGHT, XP_ORB_COLOR, MAP_SIZE, 
                          OBSTACLE_DENSITY, DIFFICULTY_SETTINGS, MAX_XP_ORBS, 
@@ -38,11 +40,34 @@ class PlayState(GameState):
         self.stamina_bar = ProgressBar(20, 50, 200, 20, PLAYER_COLOR)
         self.xp_bar = ProgressBar(20, WINDOW_HEIGHT - 40, WINDOW_WIDTH - 40, 10, XP_ORB_COLOR)
 
+        self.combat_system = CombatSystem()
+        self._init_saturn_squares()
+
+    def _init_saturn_squares(self):
+        """Initializes the rotating Saturn Squares."""
+        for i in range(self.player.saturn_squares_count):
+            angle = i * (360 / self.player.saturn_squares_count)
+            offset = pygame.Vector2(100, 0).rotate(angle)
+            square = SaturnSquare(
+                self.player, 
+                offset, 
+                size=12, 
+                damage=self.player.saturn_squares_damage,
+                hp=self.player.saturn_squares_hp,
+                knockback=50
+            )
+            self.player.weapons.add(square)
+
     def handle_event(self, event: pygame.event.Event):
         if self.engine.input.was_just_pressed(InputAction.DASH):
             self.player.attempt_dash(0.016, self.engine.input)
 
     def update(self, dt: float):
+        if self.engine.input.was_just_pressed(InputAction.PAUSE):
+            from .pause import PauseState
+            self.engine.change_state(PauseState(self.engine, self))
+            return
+
         self.time_survived += dt
         if self.time_survived >= TOTAL_TIME_SEC:
             # Win logic
@@ -60,8 +85,39 @@ class PlayState(GameState):
             if e.active:
                 self.map_generator.compute_collisions(e)
 
-        # Combat Process
-        CombatSystem.process_explosions(self.player, self.enemies)
+        # Combat Process: Trigger Explosion
+        if self.player.explosion_timer <= 0:
+            self.player.explosion_timer = self.player.explosion_cooldown_max
+            explosion = Explosion(
+                self.player.x, 
+                self.player.y, 
+                self.player.explosion_radius, 
+                self.player.explosion_damage, 
+                self.player.explosion_knockback
+            )
+            self.player.weapons.add(explosion)
+
+        # Process all Materialized Weapons
+        self.combat_system.process_weapons(self.player, self.enemies, dt)
+        
+        # Responsible for respawning Saturn Squares if they are active in the build
+        active_squares = [w for w in self.player.weapons if isinstance(w, SaturnSquare)]
+        if len(active_squares) < self.player.saturn_squares_count:
+            # Simple logic to add missing ones (could be improved with a respawn timer)
+            missing = self.player.saturn_squares_count - len(active_squares)
+            for _ in range(missing):
+                # Randomize starting angle for new squares if they were destroyed
+                angle = random.uniform(0, 360)
+                offset = pygame.Vector2(100, 0).rotate(angle)
+                square = SaturnSquare(
+                    self.player, 
+                    offset, 
+                    size=12, 
+                    damage=self.player.saturn_squares_damage,
+                    hp=self.player.saturn_squares_hp,
+                    knockback=50
+                )
+                self.player.weapons.add(square)
         
         # Enemy Death / XP Spawning / Damage
         player_rect = self.player.get_rect()
@@ -86,6 +142,7 @@ class PlayState(GameState):
                         xp = min(self.xp_orbs, key=lambda x: x.timer)
                 
                 if xp:
+                    # todo: please add a comment what jitter does
                     jitter = 15
                     xp.x, xp.y = e.x + random.randint(-jitter, jitter), e.y + random.randint(-jitter, jitter)
                     xp.value = xp_val
@@ -157,6 +214,9 @@ class PlayState(GameState):
             
         for e in self.enemies:
             e.draw(screen, self.camera_offset)
+            
+        for w in self.player.weapons:
+            w.draw(screen, self.camera_offset)
             
         self.player.draw(screen, self.camera_offset)
         

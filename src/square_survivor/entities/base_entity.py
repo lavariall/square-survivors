@@ -1,14 +1,17 @@
 import abc
 import pygame
 
-class Entity(abc.ABC):
+class Entity(pygame.sprite.Sprite):
     """Abstract base class for all in-game objects."""
     
     def __init__(self, x: float, y: float, size: float):
+        super().__init__()
         self.x = x
         self.y = y
         self.size = size
-        self.rect = pygame.Rect(self.x - getattr(self, "size", 0)/2, self.y - getattr(self, "size", 0)/2, self.size, self.size)
+        # Standard Sprite attributes
+        self.image = pygame.Surface((size, size), pygame.SRCALPHA)
+        self.rect = self.image.get_rect()
         self.active = True
 
     @abc.abstractmethod
@@ -23,8 +26,8 @@ class Entity(abc.ABC):
 
     def get_rect(self) -> pygame.Rect:
         """Returns the world-space bounding box for collision."""
-        self.rect.width = self.size
-        self.rect.height = self.size
+        self.rect.width = int(self.size)
+        self.rect.height = int(self.size)
         self.rect.centerx = int(self.x)
         self.rect.centery = int(self.y)
         return self.rect
