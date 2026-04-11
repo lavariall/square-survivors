@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "square-survivor"
-version = "1.6.0"
-authors = [{ name = "AntiGravity", email = "antigravity@gemini.com" }]
+version = "2.3.0"
+authors = [{ name = "Lavariall", email = "n/a" }]
 description = "A 2D Top-Down Roguelike Survival Game built with pygame-ce."
 readme = "README.md"
 requires-python = ">=3.9"
