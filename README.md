@@ -107,10 +107,9 @@ classDiagram
         +is_available(player)
         +apply(player)
     }
-    class WideArea { }
-    class BlastCore { }
     class UpgradeManager {
-        +register(cls)
+        +register(upgrade)
+        +initialize_from_config(config)
         +get_random_choices(player, count)
     }
     
