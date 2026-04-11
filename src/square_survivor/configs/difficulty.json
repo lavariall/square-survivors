@@ -1,0 +1,35 @@
+{
+  "tiers": {
+    "Easy": {
+      "spawn_mult": 0.7,
+      "elite_chance_max": 0.0,
+      "endgame_time": 120.0,
+      "obstacle_density": 0.03
+    },
+    "Normal": {
+      "spawn_mult": 1.0,
+      "elite_chance_max": 0.6,
+      "endgame_time": 120.0,
+      "obstacle_density": 0.02
+    },
+    "Hard": {
+      "spawn_mult": 1.4,
+      "elite_chance_max": 1.0,
+      "endgame_time": 120.0,
+      "obstacle_density": 0.015
+    },
+    "Ultra": {
+      "spawn_mult": 1.4,
+      "elite_chance_max": 1.0,
+      "endgame_time": 240.0,
+      "obstacle_density": 0.005
+    }
+  },
+  "priorities": {
+    "Easy": 0,
+    "Normal": 1,
+    "Hard": 2,
+    "Ultra": 3
+  },
+  "default_tier": "Normal"
+}

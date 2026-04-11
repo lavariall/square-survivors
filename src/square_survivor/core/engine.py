@@ -2,14 +2,20 @@ import pygame
 from typing import Optional
 from ..states import GameState
 from .input_system import InputSystem
-from ..constants import WINDOW_WIDTH, WINDOW_HEIGHT, FPS, BG_COLOR
+from .config_manager import ConfigManager
 
 class Engine:
     """The core wrapper that polls events and manages ticks."""
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-        pygame.display.set_caption("Square Survivor")
+        # Initialize configuration
+        self.config = ConfigManager.get_instance()
+        
+        self.screen = pygame.display.set_mode((
+            self.config.display.window_width, 
+            self.config.display.window_height
+        ))
+        pygame.display.set_caption(self.config.display.title)
         self.clock = pygame.time.Clock()
         self.running = True
         self.input = InputSystem()
@@ -20,7 +26,10 @@ class Engine:
 
     def run(self):
         while self.running:
-            dt = self.clock.tick(FPS) / 1000.0  # seconds
+            # Check for config updates (hot reloading)
+            self.config.check_for_updates()
+            
+            dt = self.clock.tick(self.config.display.fps) / 1000.0  # seconds
             if dt > 0.1: 
                 dt = 0.1 # Cap dt for huge lag spikes
                 
@@ -36,7 +45,7 @@ class Engine:
             if self.current_state:
                 self.current_state.update(dt)
 
-            self.screen.fill(BG_COLOR)
+            self.screen.fill(self.config.world.bg_color)
             if self.current_state:
                 self.current_state.draw(self.screen)
             

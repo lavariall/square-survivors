@@ -4,24 +4,28 @@ import json
 from .base import GameState
 from ..core.input_system import InputAction
 from ..ui.components import Button
-from ..constants import WINDOW_WIDTH, WINDOW_HEIGHT, PLAYER_COLOR, TEXT_LIGHT, ENEMY_COLOR
+from ..core.config_manager import ConfigManager
 
 class MenuState(GameState):
     def __init__(self, engine):
         super().__init__(engine)
+        self.config = ConfigManager.get_instance()
         self.font = pygame.font.SysFont("Arial", 48, bold=True)
         self.btn_font = pygame.font.SysFont("Arial", 22, bold=True)
         self.hs_font = pygame.font.SysFont("Arial", 18)
+        self.diff_buttons = []
         
         btn_w, btn_h = 160, 50
         spacing = 20
-        difficulties = ["Easy", "Normal", "Hard", "Ultra"]
-        self.diff_buttons = []
+        win_w, win_h = self.config.display.window_width, self.config.display.window_height
         
-        self.difficulties = difficulties
-        for i, diff in enumerate(difficulties):
-            bx = WINDOW_WIDTH//2 - (btn_w * 2 + spacing * 1.5)//2 + (i % 2) * (btn_w + spacing)
-            by = WINDOW_HEIGHT//2 - 40 + (i // 2) * (btn_h + spacing)
+        # Sorting Hierarchy: 1. Difficulty, 2. Level, 3. Victory
+        priorities = self.config.difficulty.priorities
+        sorted_diffs = sorted(priorities.keys(), key=lambda x: priorities[x])
+        self.difficulties = sorted_diffs
+        for i, diff in enumerate(self.difficulties):
+            bx = win_w//2 - (btn_w * 2 + spacing * 1.5)//2 + (i % 2) * (btn_w + spacing)
+            by = win_h//2 - 40 + (i // 2) * (btn_h + spacing)
             
             def make_start(d=diff):
                 return lambda: self.start_game(d)
@@ -66,20 +70,25 @@ class MenuState(GameState):
             self.start_game(self.difficulties[self.selected_index])
 
     def draw(self, screen: pygame.Surface):
-        title = self.font.render("Square Survivor", True, PLAYER_COLOR)
-        screen.blit(title, title.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT//3 - 40)))
+        win_w, win_h = self.config.display.window_width, self.config.display.window_height
+        player_color = self.config.player.color
+        enemy_color = self.config.enemies.enemy_types["basic"].color_normal
+        text_light = self.config.ui.text_light
+
+        title = self.font.render("Square Survivor", True, player_color)
+        screen.blit(title, title.get_rect(center=(win_w//2, win_h//3 - 40)))
         for i, btn in enumerate(self.diff_buttons):
             btn.hovered = (i == self.selected_index)
             btn.draw(screen)
 
         # Draw Leaderboard at the bottom
-        hs_title = self.btn_font.render("Top Survivors", True, TEXT_LIGHT)
-        screen.blit(hs_title, hs_title.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT//2 + 100)))
+        hs_title = self.btn_font.render("Top Survivors", True, text_light)
+        screen.blit(hs_title, hs_title.get_rect(center=(win_w//2, win_h//2 + 100)))
         
-        start_y = WINDOW_HEIGHT//2 + 130
+        start_y = win_h//2 + 130
         if not self.highscores:
-            empty = self.hs_font.render("No records yet!", True, PLAYER_COLOR)
-            screen.blit(empty, empty.get_rect(center=(WINDOW_WIDTH//2, start_y)))
+            empty = self.hs_font.render("No records yet!", True, player_color)
+            screen.blit(empty, empty.get_rect(center=(win_w//2, start_y)))
         else:
             for i, score in enumerate(self.highscores):
                 s_name = score.get("name", "Unknown")
@@ -90,13 +99,13 @@ class MenuState(GameState):
                 s_diff = score.get("difficulty", "Normal")
                 
                 out_time = "VICTORY" if s_won else f"{int(s_time//60)}:{int(s_time%60):02d}"
-                color = PLAYER_COLOR if s_won else ENEMY_COLOR
+                color = player_color if s_won else enemy_color
                 
                 # Format: 1. Name (Easy) - Lvl 10 - 100 Kills - 5:20
                 row = self.hs_font.render(f"{i+1}. {s_name} ({s_diff}) - Lvl {s_level} - {s_kills} Kills - {out_time}", True, color)
-                screen.blit(row, row.get_rect(center=(WINDOW_WIDTH//2, start_y + i * 25)))
+                screen.blit(row, row.get_rect(center=(win_w//2, start_y + i * 25)))
 
         # Confirmation hint
         hint_text = "Select Difficulty [W, A, S, D] and Confirm [SPACE] to Start Game"
-        hint = self.hs_font.render(hint_text, True, PLAYER_COLOR)
-        screen.blit(hint, hint.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 30)))
+        hint = self.hs_font.render(hint_text, True, player_color)
+        screen.blit(hint, hint.get_rect(center=(win_w//2, win_h - 30)))

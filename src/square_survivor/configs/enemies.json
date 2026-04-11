@@ -1,0 +1,21 @@
+{
+  "enemy_types": {
+    "basic": {
+      "hp_base": 30.0,
+      "hp_scale_per_sec": 0.3,
+      "speed_base": 80.0,
+      "speed_variance": 40.0,
+      "speed_scale_per_sec": 0.05,
+      "damage_base": 10.0,
+      "damage_scale_per_sec": 0.05,
+      "size_normal": 20,
+      "size_elite": 30,
+      "color_normal": [255, 0, 60],
+      "color_elite": [255, 140, 0],
+      "elite_hp_mult": 2.0
+    }
+  },
+  "spawn_base_count": 20,
+  "spawn_scale_per_sec": 0.5,
+  "spawn_distance_margin": 100.0
+}

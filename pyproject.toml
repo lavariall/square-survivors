@@ -10,7 +10,8 @@ description = "A 2D Top-Down Roguelike Survival Game built with pygame-ce."
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "pygame-ce>=2.5.0"
+    "pygame-ce>=2.5.0",
+    "pydantic>=2.0"
 ]
 
 [project.scripts]

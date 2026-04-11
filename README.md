@@ -116,7 +116,20 @@ classDiagram
     
     Upgrade <|-- WideArea
     Upgrade <|-- BlastCore
-    UpgradeManager --> Upgrade : maps and registers
+    Engine --> GameState : manages
+    Engine --> ConfigManager : initializes
+
+    %% Configuration
+    class ConfigManager {
+        <<singleton>>
+        +get_instance()
+        +player
+        +enemies
+        +world
+        +difficulty
+        +ui_theme
+        +debug
+    }
 ```
 
 ---
@@ -186,28 +199,42 @@ If you want to modify the display:
 2. Locate the `LevelUpState` class.
 3. The layout logic is handled in `__init__`, where `grid_start_y` and `row_start_x` calculate centering based on the number of choices.
 
-### 4. Adjusting Difficulty & Elites
+### 4. Adjusting Difficulty & Balancing
 
-The game features a scaling difficulty system defined in `src/square_survivor/constants.py`. Each difficulty level (Easy, Normal, Hard, Ultra) affects spawn rates and how quickly **Elite Enemies** (Orange squares) appear.
+The game features a data-driven scaling difficulty system. All parameters previously in `constants.py` are now stored as JSON files in `src/square_survivor/configs/`.
 
-**Configuring a Difficulty:**
-```python
-DIFFICULTY_SETTINGS = {
+**Balancing a Difficulty:**
+Open `src/square_survivor/configs/difficulty.json`. You can modify the priorities and individual tier settings:
+
+```json
+{
+  "priorities": { "Easy": 0, "Normal": 1, "Hard": 2, "Ultra": 3 },
+  "tiers": {
     "Normal": {
-        "spawn_mult": 1.0,         # Multiplier for enemy count
-        "elite_chance_max": 0.6,   # Max % of elites in endgame
-        "endgame_time": 120,       # Seconds of high-intensity spawning
-        "obstacle_density": 0.005  # % of map covered in obstacles
+      "spawn_mult": 1.0,
+      "elite_chance_max": 0.6,
+      "endgame_time": 120,
+      "obstacle_density": 0.005
     }
+  }
 }
 ```
+
+**Global Game Settings:**
+- **World**: `src/square_survivor/configs/world.json` (Map size, Tile size, MAX XP Orbs).
+- **Player/Enemies**: `src/square_survivor/configs/player.json` and `enemy_types.json`.
+- **UI Theme**: `src/square_survivor/configs/ui_theme.json`.
+
+### 5. Hot-Reloading & Debugging
+You can enable hot-reloading for rapid balancing by editing `src/square_survivor/configs/debug_settings.json`:
+- Set `"hot_reload": true` to have the game check for JSON changes every frame.
 
 **Elite Enemy Properties:**
 - **Visuals**: Orange (`ELITE_COLOR`), 30px size.
 - **HP**: 2x Normal HP.
 - **XP**: Drops 2 XP orbs (Double Reward).
 
-### 5. Adding a New Weapon
+### 6. Adding a New Weapon
 Weapons are modular entities that handle their own logic and collision interaction.
 
 1. Create a new file in `src/square_survivor/entities/weapons/`.

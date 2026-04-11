@@ -1,0 +1,8 @@
+{
+  "panel_bg_color": [22, 22, 30],
+  "panel_border_color": [45, 45, 60],
+  "text_light": [255, 255, 255],
+  "text_muted": [136, 136, 153],
+  "player_color_dim": [0, 240, 255, 76],
+  "explosion_color": [0, 240, 255]
+}
