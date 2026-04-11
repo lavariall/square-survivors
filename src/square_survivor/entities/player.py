@@ -46,6 +46,7 @@ class Player(Entity):
         self.saturn_squares_knockback = 50
         self.saturn_squares_lifespan_active = True
         self.saturn_squares_rotation_speed = 180.0
+        self.saturn_squares_angle = 0.0
         
         self.pickup_radius = 100
         self.experience_booster = 1.0
@@ -68,6 +69,7 @@ class Player(Entity):
             self.invuln_timer -= dt
             
         self.explosion_timer -= dt
+        self.saturn_squares_angle = (self.saturn_squares_angle + self.saturn_squares_rotation_speed * dt) % 360
             
         # Stamina & Health Regen
         self.stamina = min(self.max_stamina, self.stamina + self.stamina_regen * dt)

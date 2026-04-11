@@ -3,11 +3,12 @@ from .base_weapon import Weapon
 from ...constants import PLAYER_COLOR
 
 class SaturnSquare(Weapon):
-    def __init__(self, owner, offset_vector, size: float, damage: float, hp: float, knockback: float):
+    def __init__(self, owner, index: int, size: float, damage: float, hp: float, knockback: float, radius: float = 100):
         # Initialize at a temporary position, will be updated immediately
         super().__init__(owner.x, owner.y, size, damage, knockback)
         self.owner = owner
-        self.offset_vector = pygame.Vector2(offset_vector)
+        self.index = index
+        self.radius = radius
         self.hp = hp
         self.max_hp = hp
         self.life_timer = 10.0 # Default 10 seconds
@@ -43,12 +44,17 @@ class SaturnSquare(Weapon):
                 self.active = False
                 self.kill()
 
-        # Rotate the offset vector
-        self.offset_vector = self.offset_vector.rotate(rotation_speed * dt)
+        # Calculate current angle based on master angle from owner and our index
+        total_count = getattr(self.owner, "saturn_squares_count", 1)
+        master_angle = getattr(self.owner, "saturn_squares_angle", 0.0)
         
-        # Calculate new world position
-        self.x = self.owner.x + self.offset_vector.x
-        self.y = self.owner.y + self.offset_vector.y
+        # Stabilize polar coordinates: Spread evenly over 360 degrees
+        angle = (master_angle + (self.index * 360.0 / total_count)) % 360
+        
+        # Calculate new world position using rotating offset
+        offset = pygame.Vector2(self.radius, 0).rotate(angle)
+        self.x = self.owner.x + offset.x
+        self.y = self.owner.y + offset.y
         
         # Update rect for collision
         self.rect.center = (int(self.x), int(self.y))
