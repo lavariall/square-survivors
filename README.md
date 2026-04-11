@@ -276,7 +276,7 @@ Whenever you make code adjustments, simply execute the builder script from a pow
 ```powershell
 .\.venv\Scripts\python.exe build_exe.py
 ```
-This produces your distribution bundle in `dist/SquareSurvivor.exe`.
+This produces your distribution bundle in `dist/windows/SquareSurvivor.exe`.
 
 ### Linux (Standalone Binary)
 To build for Linux (Compatible with **Linux Mint 22+**, Ubuntu, and Debian), ensure **Docker Desktop** is running and execute:
