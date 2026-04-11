@@ -1,6 +1,6 @@
 import pygame
 from .base_weapon import Weapon
-from ...constants import PLAYER_COLOR
+from ...core.config_manager import ConfigManager
 
 class SaturnSquare(Weapon):
     def __init__(self, owner, index: int, size: float, damage: float, hp: float, knockback: float, radius: float = 100):
@@ -20,7 +20,8 @@ class SaturnSquare(Weapon):
     def _rebuild_sprite(self):
         """Rebuilds the image and rect based on current size."""
         self.image = pygame.Surface((self.size, self.size), pygame.SRCALPHA)
-        pygame.draw.rect(self.image, PLAYER_COLOR, (0, 0, self.size, self.size), 2) # Semantic color
+        color = ConfigManager.get_instance().player.color
+        pygame.draw.rect(self.image, color, (0, 0, self.size, self.size), 2) # Semantic color
         self.rect = self.image.get_rect()
 
     def update(self, dt: float):

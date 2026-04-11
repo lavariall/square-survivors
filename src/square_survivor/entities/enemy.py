@@ -1,11 +1,13 @@
 import pygame
 from math import hypot
 from .base_entity import Entity
-from ..constants import ENEMY_COLOR
+from ..core.config_manager import ConfigManager
 
 class Enemy(Entity):
     def __init__(self, x: float, y: float, hp: float, speed: float, damage: float, is_elite: bool = False):
-        super().__init__(x, y, 30 if is_elite else 20)
+        self.config = ConfigManager.get_instance().enemies.enemy_types["basic"]
+        size = self.config.size_elite if is_elite else self.config.size_normal
+        super().__init__(x, y, size)
         self.max_hp = hp
         self.hp = hp
         self.speed = speed
@@ -25,12 +27,10 @@ class Enemy(Entity):
 
     def draw(self, screen: pygame.Surface, camera_offset: tuple[float, float]):
         if not self.active: return
-        from ..constants import ELITE_COLOR
-        
         render_x = int(self.x - camera_offset[0] - self.size/2)
         render_y = int(self.y - camera_offset[1] - self.size/2)
         
-        color = ELITE_COLOR if self.is_elite else ENEMY_COLOR
+        color = self.config.color_elite if self.is_elite else self.config.color_normal
         pygame.draw.rect(screen, color, (render_x, render_y, self.size, self.size))
         
         if self.is_elite:

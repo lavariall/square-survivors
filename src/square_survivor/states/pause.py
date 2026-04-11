@@ -1,7 +1,7 @@
 import pygame
 from .base import GameState
 from ..core.input_system import InputAction
-from ..constants import WINDOW_WIDTH, WINDOW_HEIGHT, PLAYER_COLOR, TEXT_LIGHT
+from ..core.config_manager import ConfigManager
 
 class PauseState(GameState):
     def __init__(self, engine, play_state):
@@ -23,18 +23,23 @@ class PauseState(GameState):
         # Draw background game state behind
         self.play_state.draw(screen) 
         
+        config = ConfigManager.get_instance()
+        win_w, win_h = config.display.window_width, config.display.window_height
+        player_color = config.player.color
+        text_light = config.ui.text_light
+
         # Transparent overlay
-        overlay = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
+        overlay = pygame.Surface((win_w, win_h))
         overlay.set_alpha(180) # Slightly lighter than level up
         overlay.fill((0, 0, 0))
         screen.blit(overlay, (0, 0))
         
         # Title
-        title_surf = self.title_font.render("Pause", True, PLAYER_COLOR)
-        title_rect = title_surf.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 50))
+        title_surf = self.title_font.render("Pause", True, player_color)
+        title_rect = title_surf.get_rect(center=(win_w // 2, win_h // 2 - 50))
         screen.blit(title_surf, title_rect)
         
         # Hint
-        hint_surf = self.hint_font.render("Press [ESC] or [SPACE] to continue", True, TEXT_LIGHT)
-        hint_rect = hint_surf.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 50))
+        hint_surf = self.hint_font.render("Press [ESC] or [SPACE] to continue", True, text_light)
+        hint_rect = hint_surf.get_rect(center=(win_w // 2, win_h // 2 + 50))
         screen.blit(hint_surf, hint_rect)

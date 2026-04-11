@@ -4,15 +4,16 @@ from .base import GameState
 from ..core.input_system import InputAction
 from ..systems.upgrade_system import UpgradeManager
 from ..ui.components import Button
-from ..constants import WINDOW_WIDTH, WINDOW_HEIGHT, PLAYER_COLOR, TEXT_LIGHT
+from ..core.config_manager import ConfigManager
 
 class LevelUpState(GameState):
     def __init__(self, engine, play_state):
         super().__init__(engine)
         self.play_state = play_state
-        self.font = pygame.font.SysFont("Arial", 48, bold=True)
-        self.btn_font = pygame.font.SysFont("Arial", 18, bold=True)
-        self.desc_font = pygame.font.SysFont("Arial", 14)
+        self.config = ConfigManager.get_instance()
+        self.font = pygame.font.SysFont("Arial", 48, bold=True)  # todo: use config e.g. (self.config.ui.font, self.config.ui.font_size_large, self.config.ui.font_large_bold)
+        self.btn_font = pygame.font.SysFont("Arial", 18, bold=True)  # todo: use config e.g. (self.config.ui.font, self.config.ui.font_size_normal, self.config.ui.font_normal_bold)
+        self.desc_font = pygame.font.SysFont("Arial", 14)  # todo: use config e.g. (self.config.ui.font, self.config.ui.font_size_small, self.config.ui.font_small_bold)
         
         self.choices = UpgradeManager.get_random_choices(self.play_state.player, self.play_state.player.upgrade_choices)
         self.buttons = []
@@ -29,7 +30,8 @@ class LevelUpState(GameState):
 
         num_rows = math.ceil(num_choices / max_cols)
         total_grid_h = num_rows * btn_h + (num_rows - 1) * spacing_y
-        grid_start_y = (WINDOW_HEIGHT - total_grid_h) // 2 + 50
+        win_w, win_h = self.config.display.window_width, self.config.display.window_height
+        grid_start_y = (win_h - total_grid_h) // 2 + 50
         
         for i, upgrade in enumerate(self.choices):
             row = i // max_cols
@@ -37,7 +39,7 @@ class LevelUpState(GameState):
             
             items_in_row = min(max_cols, num_choices - row * max_cols)
             row_w = items_in_row * btn_w + (items_in_row - 1) * spacing_x
-            row_start_x = (WINDOW_WIDTH - row_w) // 2
+            row_start_x = (win_w - row_w) // 2
             
             bx = row_start_x + col * (btn_w + spacing_x)
             by = grid_start_y + row * (btn_h + spacing_y)
@@ -79,21 +81,25 @@ class LevelUpState(GameState):
         # Draw background game state behind
         self.play_state.draw(screen) 
         
+        win_w, win_h = self.config.display.window_width, self.config.display.window_height
+        player_color = self.config.player.color
+        text_light = self.config.ui.text_light
+
         # Transparent overlay
-        overlay = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
+        overlay = pygame.Surface((win_w, win_h))
         overlay.set_alpha(200)
         overlay.fill((0, 0, 0))
         screen.blit(overlay, (0, 0))
         
-        title = self.font.render("LEVEL UP!", True, PLAYER_COLOR)
-        screen.blit(title, title.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT//3)))
+        title = self.font.render("LEVEL UP!", True, player_color)
+        screen.blit(title, title.get_rect(center=(win_w//2, win_h//3)))
         
         for i, btn in enumerate(self.buttons):
             btn.hovered = (i == self.selected_index)
             btn.draw(screen)
-            desc_surf = self.desc_font.render(self.choices[i].description, True, TEXT_LIGHT)
+            desc_surf = self.desc_font.render(self.choices[i].description, True, text_light)
             screen.blit(desc_surf, desc_surf.get_rect(center=(btn.rect.centerx, btn.rect.bottom + 20)))
-
+ 
         # Confirmation hint
-        hint = self.btn_font.render("Press [SPACE] to Confirm Choice", True, PLAYER_COLOR)
-        screen.blit(hint, hint.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 40)))
+        hint = self.btn_font.render("Press [SPACE] to Confirm Choice", True, player_color)
+        screen.blit(hint, hint.get_rect(center=(win_w//2, win_h - 40)))

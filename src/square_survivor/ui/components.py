@@ -1,6 +1,6 @@
 import pygame
 from typing import Callable, Tuple
-from ..constants import PLAYER_COLOR, PLAYER_COLOR_DIM, TEXT_LIGHT, PANEL_BG, PANEL_BORDER
+from ..core.config_manager import ConfigManager
 
 class Button:
     def __init__(self, x: int, y: int, w: int, h: int, text: str, font: pygame.font.Font, on_click: Callable):
@@ -18,22 +18,25 @@ class Button:
                 self.on_click()
 
     def draw(self, screen: pygame.Surface):
+        config = ConfigManager.get_instance()
+        player_color = config.player.color
+        
         if self.hovered:
             # Glow effect
             glow_surf = pygame.Surface((self.rect.w + 20, self.rect.h + 20), pygame.SRCALPHA)
-            pygame.draw.rect(glow_surf, (PLAYER_COLOR[0], PLAYER_COLOR[1], PLAYER_COLOR[2], 100), glow_surf.get_rect(), border_radius=12)
+            pygame.draw.rect(glow_surf, (player_color[0], player_color[1], player_color[2], 100), glow_surf.get_rect(), border_radius=12)
             screen.blit(glow_surf, (self.rect.x - 10, self.rect.y - 10))
             
-            pygame.draw.rect(screen, PLAYER_COLOR, self.rect, border_radius=8)
+            pygame.draw.rect(screen, player_color, self.rect, border_radius=8)
             text_surf = self.font.render(self.text, True, (0, 0, 0))
         else:
             # Alpha background
             btn_surf = pygame.Surface((self.rect.w, self.rect.h), pygame.SRCALPHA)
-            pygame.draw.rect(btn_surf, (PLAYER_COLOR[0], PLAYER_COLOR[1], PLAYER_COLOR[2], 76), btn_surf.get_rect(), border_radius=8)
+            pygame.draw.rect(btn_surf, (player_color[0], player_color[1], player_color[2], 76), btn_surf.get_rect(), border_radius=8)
             screen.blit(btn_surf, self.rect.topleft)
             
-            pygame.draw.rect(screen, PLAYER_COLOR, self.rect, 2, border_radius=8)
-            text_surf = self.font.render(self.text, True, PLAYER_COLOR)
+            pygame.draw.rect(screen, player_color, self.rect, 2, border_radius=8)
+            text_surf = self.font.render(self.text, True, player_color)
             
         tr = text_surf.get_rect(center=self.rect.center)
         screen.blit(text_surf, tr)
@@ -51,10 +54,11 @@ class ProgressBar:
             self.progress = 0.0
 
     def draw(self, screen: pygame.Surface):
+        config = ConfigManager.get_instance().ui
         # Background
         pygame.draw.rect(screen, (0, 0, 0, 128), self.rect, border_radius=10)
         # Border
-        pygame.draw.rect(screen, PANEL_BORDER, self.rect, 2, border_radius=10)
+        pygame.draw.rect(screen, config.panel_border_color, self.rect, 2, border_radius=10)
         
         if self.progress > 0:
             fill_rect = pygame.Rect(self.rect.x, self.rect.y, int(self.rect.width * self.progress), self.rect.height)
@@ -85,12 +89,17 @@ class InputBox:
                         self.text += event.unicode
 
     def draw(self, screen):
-        color = PLAYER_COLOR if self.active else PLAYER_COLOR_DIM
+        config = ConfigManager.get_instance()
+        player_color = config.player.color
+        player_color_dim = config.ui.player_color_dim
+        text_light = config.ui.text_light
+
+        color = player_color if self.active else player_color_dim
         # Draw background and border
         pygame.draw.rect(screen, (10, 10, 15), self.rect, border_radius=4)
         pygame.draw.rect(screen, color, self.rect, 2, border_radius=4)
         
-        txt_surf = self.font.render(self.text, True, TEXT_LIGHT)
+        txt_surf = self.font.render(self.text, True, text_light)
         screen.blit(txt_surf, (self.rect.x + 5, self.rect.y + self.rect.height // 2 - txt_surf.get_height() // 2))
 
 if __name__ == "__main__":

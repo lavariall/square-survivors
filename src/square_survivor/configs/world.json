@@ -1,0 +1,11 @@
+{
+  "map_size": 4000,
+  "tile_size": 50,
+  "total_time_sec": 600.0,
+  "max_xp_orbs": 1000,
+  "obstacle_density": 0.005,
+  "bg_color": [15, 15, 19],
+  "grid_color": [121, 121, 128],
+  "obstacle_color": [255, 255, 255, 153],
+  "obstacle_border_color": [255, 255, 255, 200]
+}

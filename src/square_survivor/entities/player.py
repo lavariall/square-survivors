@@ -1,54 +1,58 @@
 import pygame
 from math import hypot
 from .base_entity import Entity
-from ..constants import PLAYER_COLOR, MAP_SIZE
+from ..core.config_manager import ConfigManager
 
 class Player(Entity):
     def __init__(self):
-        super().__init__(MAP_SIZE // 2, MAP_SIZE // 2, 24)
+        self.config = ConfigManager.get_instance()
+        player_cfg = self.config.player
+        world_cfg = self.config.world
+        
+        super().__init__(world_cfg.map_size // 2, world_cfg.map_size // 2, 24)
         
         # Stats
-        self.base_speed = 200
-        self.max_hp = 100
-        self.hp = 100
-        self.health_regen = 0
-        self.max_stamina = 100
-        self.stamina = 100
-        self.stamina_regen = 20
+        self.base_speed = player_cfg.base_speed
+        self.max_hp = player_cfg.max_hp
+        self.hp = self.max_hp
+        self.health_regen = player_cfg.health_regen
+        self.max_stamina = player_cfg.max_stamina
+        self.stamina = self.max_stamina
+        self.stamina_regen = player_cfg.stamina_regen
         self.level = 1
         self.xp = 0
-        self.xp_required = 10
+        self.xp_required = player_cfg.xp_required_base
         self.kills = 0
-        self.upgrade_choices = 3
+        self.upgrade_choices = player_cfg.upgrade_choices
         self.level_ups_pending = 0
         
         # Combat / Dash
-        self.dash_cooldown_max = 1.5
+        self.dash_cooldown_max = player_cfg.dash_cooldown_max
         self.dash_cooldown = 0.0
-        self.dash_cost = 30
-        self.dash_distance = 100
+        self.dash_cost = player_cfg.dash_cost
+        self.dash_distance = player_cfg.dash_distance
         
         # Weapons Group
         self.weapons = pygame.sprite.Group()
         
         # Explosion Stats
-        self.explosion_radius = 150
-        self.explosion_damage = 50
-        self.explosion_cooldown_max = 2.0
+        self.explosion_radius = player_cfg.explosion_radius
+        self.explosion_damage = player_cfg.explosion_damage
+        self.explosion_cooldown_max = player_cfg.explosion_cooldown_max
         self.explosion_timer = 0.0
-        self.explosion_knockback = 300
+        self.explosion_knockback = player_cfg.explosion_knockback
         
         # Saturn Square Stats
-        self.saturn_squares_count = 3
-        self.saturn_squares_size = 50
-        self.saturn_squares_hp = 50
-        self.saturn_squares_damage = 10
-        self.saturn_squares_knockback = 50
+        self.saturn_squares_count = player_cfg.saturn_squares_count
+        self.saturn_squares_size = player_cfg.saturn_squares_size
+        self.saturn_squares_hp = player_cfg.saturn_squares_hp
+        self.saturn_squares_damage = player_cfg.saturn_squares_damage
+        self.saturn_squares_knockback = player_cfg.saturn_squares_knockback
         self.saturn_squares_lifespan_active = True
-        self.saturn_squares_rotation_speed = 180.0
+        self.saturn_squares_rotation_speed = player_cfg.saturn_squares_rotation_speed
         self.saturn_squares_angle = 0.0
         
-        self.pickup_radius = 100
+        self.pickup_radius = player_cfg.pickup_radius
         self.experience_booster = 1.0
         self.invuln_timer = 0.0
 
@@ -81,8 +85,9 @@ class Player(Entity):
         self.y += dy * self.base_speed * dt
         
         # Clamp bounds
-        self.x = max(self.size/2, min(MAP_SIZE - self.size/2, self.x))
-        self.y = max(self.size/2, min(MAP_SIZE - self.size/2, self.y))
+        map_size = self.config.world.map_size
+        self.x = max(self.size/2, min(map_size - self.size/2, self.x))
+        self.y = max(self.size/2, min(map_size - self.size/2, self.y))
 
     def attempt_dash(self, dt: float, input_system):
         if self.dash_cooldown <= 0 and self.stamina >= self.dash_cost:
@@ -112,10 +117,5 @@ class Player(Entity):
         if self.invuln_timer > 0 and (pygame.time.get_ticks() // 100) % 2 == 0:
             return
 
-        pygame.draw.rect(screen, PLAYER_COLOR, (render_x, render_y, self.size, self.size))
+        pygame.draw.rect(screen, self.config.player.color, (render_x, render_y, self.size, self.size))
 
-if __name__ == "__main__":
-    p = Player()
-    p.update(0.16)
-    print("Player x, y:", p.x, p.y)
-    print("Player instantiated successfully.")

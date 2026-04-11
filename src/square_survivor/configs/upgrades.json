@@ -1,0 +1,246 @@
+{
+  "player": {
+    "agility": {
+      "name": "Agility",
+      "description": "Dash Cooldown -40%",
+      "likelihood": 50,
+      "is_active": true,
+      "effects": [
+        {
+          "stat": "dash_cooldown_max",
+          "op": "mul",
+          "value": 0.6
+        }
+      ]
+    },
+    "endurance": {
+      "name": "Endurance",
+      "description": "Max HP +25",
+      "likelihood": 50,
+      "is_active": true,
+      "effects": [
+        {
+          "stat": "max_hp",
+          "op": "add",
+          "value": 25
+        },
+        {
+          "stat": "hp",
+          "op": "add",
+          "value": 25
+        }
+      ]
+    },
+    "health_regen": {
+      "name": "Health Regen",
+      "description": "Health Regen +3/sec",
+      "likelihood": 500,
+      "is_active": true,
+      "effects": [
+        {
+          "stat": "health_regen",
+          "op": "add",
+          "value": 3
+        }
+      ]
+    },
+    "swiftness": {
+      "name": "Swiftness",
+      "description": "Move Speed +50%",
+      "likelihood": 20000,
+      "is_active": true,
+      "effects": [
+        {
+          "stat": "base_speed",
+          "op": "mul",
+          "value": 1.5
+        }
+      ]
+    },
+    "magnetism": {
+      "name": "Magnetism",
+      "description": "Pickup Radius +50%",
+      "likelihood": 500,
+      "is_active": true,
+      "effects": [
+        {
+          "stat": "pickup_radius",
+          "op": "mul",
+          "value": 1.5
+        }
+      ]
+    },
+    "dash_master": {
+      "name": "Dash Master",
+      "description": "Dash Distance +20%",
+      "likelihood": 50,
+      "is_active": true,
+      "effects": [
+        {
+          "stat": "dash_distance",
+          "op": "mul",
+          "value": 1.2
+        }
+      ]
+    },
+    "experience_booster": {
+      "name": "Experience Booster",
+      "description": "Experience Booster +25%",
+      "likelihood": 200,
+      "is_active": true,
+      "effects": [
+        {
+          "stat": "experience_booster",
+          "op": "mul",
+          "value": 1.25
+        }
+      ]
+    }
+  },
+  "weapon_explosion": {
+    "blast_core": {
+      "name": "Blast Core",
+      "description": "Explosion Damage +20%",
+      "likelihood": 50,
+      "is_active": true,
+      "effects": [
+        {
+          "stat": "explosion_damage",
+          "op": "mul",
+          "value": 1.2
+        }
+      ]
+    },
+    "wide_area": {
+      "name": "Wide Area",
+      "description": "Explosion Radius +20%",
+      "likelihood": 500,
+      "is_active": true,
+      "effects": [
+        {
+          "stat": "explosion_radius",
+          "op": "mul",
+          "value": 1.2
+        }
+      ]
+    },
+    "forceful": {
+      "name": "Forceful",
+      "description": "Explosion Knockback +50%",
+      "likelihood": 50,
+      "is_active": true,
+      "effects": [
+        {
+          "stat": "explosion_knockback",
+          "op": "mul",
+          "value": 1.5
+        }
+      ]
+    },
+    "overcharge": {
+      "name": "Overcharge",
+      "description": "Attack Delay -20%",
+      "likelihood": 500,
+      "is_active": true,
+      "effects": [
+        {
+          "stat": "explosion_cooldown_max",
+          "op": "mul",
+          "value": 0.8
+        }
+      ]
+    }
+  },
+  "weapon_saturn_rings": {
+    "ring_density": {
+      "name": "Ring Density",
+      "description": "Increases Saturn Square count by 1 (Max 7)",
+      "likelihood": 500,
+      "is_active": true,
+      "effects": [
+        {
+          "stat": "saturn_squares_count",
+          "op": "add",
+          "value": 1
+        }
+      ],
+      "limit": {
+        "stat": "saturn_squares_count",
+        "value": 7
+      }
+    },
+    "reinforced_squares": {
+      "name": "Reinforced Squares",
+      "description": "Saturn Squares HP +50%",
+      "likelihood": 100,
+      "is_active": true,
+      "effects": [
+        {
+          "stat": "saturn_squares_hp",
+          "op": "mul",
+          "value": 1.5
+        }
+      ]
+    },
+    "lethal_spin": {
+      "name": "Lethal Spin",
+      "description": "Saturn Squares Damage +30%",
+      "likelihood": 100,
+      "is_active": true,
+      "effects": [
+        {
+          "stat": "saturn_squares_damage",
+          "op": "mul",
+          "value": 1.3
+        }
+      ]
+    },
+    "eternal_spin": {
+      "name": "Eternal Spin",
+      "description": "Saturn Squares lifespan decrease turned off",
+      "likelihood": 200,
+      "is_active": true,
+      "one_time": true,
+      "effects": [
+        {
+          "stat": "saturn_squares_lifespan_active",
+          "op": "set",
+          "value": false
+        }
+      ]
+    },
+    "giant_rings": {
+      "name": "Giant Rings",
+      "description": "Saturn Squares size +50%",
+      "likelihood": 100,
+      "is_active": true,
+      "one_time": true,
+      "effects": [
+        {
+          "stat": "saturn_squares_size",
+          "op": "mul",
+          "value": 1.5
+        }
+      ]
+    }
+  },
+  "settings": {
+    "increase_upgrade_choices": {
+      "name": "Increase Upgrade Choices",
+      "description": "Increase Upgrade Choices +1 (Max 7)",
+      "likelihood": 50,
+      "is_active": true,
+      "effects": [
+        {
+          "stat": "upgrade_choices",
+          "op": "add",
+          "value": 1
+        }
+      ],
+      "limit": {
+        "stat": "upgrade_choices",
+        "value": 7
+      }
+    }
+  }
+}

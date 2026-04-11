@@ -13,32 +13,31 @@ from ..systems.wave_manager import WaveManager
 from ..entities.weapons.explosion import Explosion
 from ..entities.weapons.saturn_square import SaturnSquare
 from ..ui.components import ProgressBar
-from ..constants import (WINDOW_WIDTH, WINDOW_HEIGHT, XP_ORB_COLOR, MAP_SIZE, 
-                         OBSTACLE_DENSITY, DIFFICULTY_SETTINGS, MAX_XP_ORBS, 
-                         XP_ORB_LIFESPAN, TEXT_LIGHT, PLAYER_COLOR, ENEMY_COLOR, 
-                         TOTAL_TIME_SEC)
+from ..core.config_manager import ConfigManager
 
 class PlayState(GameState):
     def __init__(self, engine, difficulty="Normal"):
         super().__init__(engine)
+        self.config = ConfigManager.get_instance()
         self.player = Player()
         self.enemies: List[Enemy] = []
         self.xp_orbs: List[XPOrb] = []
         
         self.difficulty = difficulty
-        self.difficulty_settings = DIFFICULTY_SETTINGS.get(difficulty, DIFFICULTY_SETTINGS["Normal"])
+        self.difficulty_settings = self.config.difficulty.tiers.get(difficulty, self.config.difficulty.tiers["Normal"])
         
-        self.map_generator = MapGenerator(density=self.difficulty_settings.get("obstacle_density", OBSTACLE_DENSITY))
-        self.map_generator.generate((MAP_SIZE//2, MAP_SIZE//2))
+        self.map_generator = MapGenerator(density=self.difficulty_settings.obstacle_density)
+        self.map_generator.generate((self.config.world.map_size//2, self.config.world.map_size//2))
         
         self.time_survived = 0.0
         self.camera_offset = [0.0, 0.0]
         
         # UI
         self.font = pygame.font.SysFont("Arial", 24, bold=True)
-        self.hp_bar = ProgressBar(20, 20, 200, 20, ENEMY_COLOR)
-        self.stamina_bar = ProgressBar(20, 50, 200, 20, PLAYER_COLOR)
-        self.xp_bar = ProgressBar(20, WINDOW_HEIGHT - 40, WINDOW_WIDTH - 40, 10, XP_ORB_COLOR)
+        self.hp_bar = ProgressBar(20, 20, 200, 20, self.config.enemies.enemy_types["basic"].color_normal)
+        self.stamina_bar = ProgressBar(20, 50, 200, 20, self.config.player.color)
+        win_w, win_h = self.config.display.window_width, self.config.display.window_height
+        self.xp_bar = ProgressBar(20, win_h - 40, win_w - 40, 10, self.config.xp_orbs.color)
 
         self.combat_system = CombatSystem()
         self._init_saturn_squares()
@@ -67,7 +66,7 @@ class PlayState(GameState):
             return
 
         self.time_survived += dt
-        if self.time_survived >= TOTAL_TIME_SEC:
+        if self.time_survived >= self.config.world.total_time_sec:
             # Win logic
             from .game_over import GameOverState
             self.engine.change_state(GameOverState(self.engine, self.player, True, self.time_survived, self.difficulty))
@@ -132,7 +131,7 @@ class PlayState(GameState):
                 xp = next((x for x in self.xp_orbs if not x.active), None)
                 
                 if not xp:
-                    if len(self.xp_orbs) < MAX_XP_ORBS:
+                    if len(self.xp_orbs) < self.config.world.max_xp_orbs:
                         xp = XPOrb(e.x, e.y, xp_val)
                         self.xp_orbs.append(xp)
                     else:
@@ -145,7 +144,7 @@ class PlayState(GameState):
                     xp.x, xp.y = e.x + random.randint(-jitter, jitter), e.y + random.randint(-jitter, jitter)
                     xp.value = xp_val
                     xp.active = True
-                    xp.timer = XP_ORB_LIFESPAN
+                    xp.timer = self.config.xp_orbs.lifespan
                 
                 continue
 
@@ -178,10 +177,10 @@ class PlayState(GameState):
                         self.player.xp -= self.player.xp_required
                         self.player.level_ups_pending += 1
                         self.player.level += 1
-                        self.player.xp_required = int(10 * (self.player.level ** 1.5))
+                        self.player.xp_required = int(self.config.player.xp_required_base * (self.player.level ** 1.5))
         
         # Cleanup inactive orbs periodically
-        if len(self.xp_orbs) > 1000:
+        if len(self.xp_orbs) > self.config.world.max_xp_orbs:
             self.xp_orbs = [x for x in self.xp_orbs if x.active]
 
         # Handle Level Up Transition at the end of the update
@@ -191,19 +190,23 @@ class PlayState(GameState):
             return 
 
         # Spawn new enemies at the end of the frame
-        viewport = (self.camera_offset[0], self.camera_offset[1], WINDOW_WIDTH, WINDOW_HEIGHT)
+        win_w, win_h = self.config.display.window_width, self.config.display.window_height
+        viewport = (self.camera_offset[0], self.camera_offset[1], win_w, win_h)
         WaveManager.spawn_wave(self.time_survived, viewport, self.player, self.enemies, self.difficulty_settings)
 
     def draw(self, screen: pygame.Surface):
+        win_w, win_h = self.config.display.window_width, self.config.display.window_height
+        map_size = self.config.world.map_size
+        
         # Update camera (simple follow)
-        self.camera_offset[0] += (self.player.x - WINDOW_WIDTH/2 - self.camera_offset[0]) * 0.1
-        self.camera_offset[1] += (self.player.y - WINDOW_HEIGHT/2 - self.camera_offset[1]) * 0.1
+        self.camera_offset[0] += (self.player.x - win_w/2 - self.camera_offset[0]) * 0.1
+        self.camera_offset[1] += (self.player.y - win_h/2 - self.camera_offset[1]) * 0.1
         
         # clamping camera
-        self.camera_offset[0] = max(0.0, min(MAP_SIZE - WINDOW_WIDTH, self.camera_offset[0]))
-        self.camera_offset[1] = max(0.0, min(MAP_SIZE - WINDOW_HEIGHT, self.camera_offset[1]))
+        self.camera_offset[0] = max(0.0, min(map_size - win_w, self.camera_offset[0]))
+        self.camera_offset[1] = max(0.0, min(map_size - win_h, self.camera_offset[1]))
         
-        viewport = pygame.Rect(self.camera_offset[0], self.camera_offset[1], WINDOW_WIDTH, WINDOW_HEIGHT)
+        viewport = pygame.Rect(self.camera_offset[0], self.camera_offset[1], win_w, win_h)
         
         self.map_generator.draw(screen, self.camera_offset, viewport)
         
@@ -229,15 +232,16 @@ class PlayState(GameState):
         
         # XP Text
         xp_text = f"{int(self.player.xp)} / {self.player.xp_required}"
-        xp_surf = self.font.render(xp_text, True, TEXT_LIGHT)
-        screen.blit(xp_surf, (WINDOW_WIDTH - 20 - xp_surf.get_width(), WINDOW_HEIGHT - 70))
+        text_color = self.config.ui.text_light
+        xp_surf = self.font.render(xp_text, True, text_color)
+        screen.blit(xp_surf, (win_w - 20 - xp_surf.get_width(), win_h - 70))
         
-        info = self.font.render(f"Lvl: {self.player.level}  Kills: {self.player.kills}", True, TEXT_LIGHT)
-        screen.blit(info, (WINDOW_WIDTH - 200, 20))
+        info = self.font.render(f"Lvl: {self.player.level}  Kills: {self.player.kills}", True, text_color)
+        screen.blit(info, (win_w - 200, 20))
         
         # Remaining Time Timer
-        rem_time = max(0.0, TOTAL_TIME_SEC - self.time_survived)
+        rem_time = max(0.0, self.config.world.total_time_sec - self.time_survived)
         mins = int(rem_time // 60)
         secs = int(rem_time % 60)
-        timer_surf = self.font.render(f"{mins}:{secs:02d}", True, TEXT_LIGHT)
-        screen.blit(timer_surf, timer_surf.get_rect(center=(WINDOW_WIDTH // 2, 30)))
+        timer_surf = self.font.render(f"{mins}:{secs:02d}", True, text_color)
+        screen.blit(timer_surf, timer_surf.get_rect(center=(win_w // 2, 30)))
