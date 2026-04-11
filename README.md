@@ -114,8 +114,11 @@ classDiagram
         +get_random_choices(player, count)
     }
     
-    Upgrade <|-- WideArea
-    Upgrade <|-- BlastCore
+    Upgrade <|-- DataDrivenUpgrade
+    UpgradeManager --> Upgrade : manages pool
+    ConfigManager --> UpgradesConfig : loads
+    UpgradesConfig --> UpgradeDefinition : contains
+    DataDrivenUpgrade --> UpgradeDefinition : fueled by
     Engine --> GameState : manages
     Engine --> ConfigManager : initializes
 
@@ -140,28 +143,31 @@ The game is designed to be easily extensible. All major game systems run autonom
 
 ### 1. Implementing a New Upgrade
 
-Upgrades use an **Automatic Registry Pattern**. You do not need to wire them into the game's core loop or states manually! 
+The upgrade system uses a **Type Object Pattern**. Adding new power-ups does not require writing new Python classes; instead, you define them in the global configuration.
 
-To add a new power-up variation:
-1. Identify the relevant category file in `src/square_survivor/systems/upgrade_system/` (e.g., `player_upgrades.py`).
-2. Create a new class that inherits from `Upgrade`.
-3. Give it a `name`, a `description` property, and implement what happens inside `apply()`.
-4. (Optional) Set a custom `likelihood` value (default is 100).
-5. Drop the `@UpgradeManager.register` decorator exactly above it.
+To add a new upgrade:
+1. Open `src/square_survivor/configs/upgrades.json`.
+2. Locate the appropriate category (e.g., `player`, `weapon_explosion`).
+3. Add a new entry with a unique key.
+4. Define the `name`, `description`, `likelihood`, and a list of `effects`.
 
-**Example implementation for "Iron Skin":**
-```python
-# src/square_survivor/systems/upgrade_system/player_upgrades.py
-
-@UpgradeManager.register
-class IronSkin(Upgrade):
-    name = "Iron Skin"
-    description = "Permanent +2.0s Invulnerability per Hit"
-    likelihood = 50  # 2x rarer than default upgrades
-    
-    def apply(self, player: Player):
-        player.base_invuln_time += 2.0 
+**Example JSON implementation for "Iron Skin":**
+```json
+"iron_skin": {
+  "name": "Iron Skin",
+  "description": "Permanent +2.0s Invulnerability per Hit",
+  "likelihood": 50,
+  "is_active": true,
+  "effects": [
+    { "stat": "base_invuln_time", "op": "add", "value": 2.0 }
+  ]
+}
 ```
+
+**Supported Operations (`op`):**
+- `add`: Increments the stat by the value.
+- `mul`: Multiplies the stat by the value (use `1.2` for +20%).
+- `set`: Directly sets the stat to the value (useful for booleans).
 
 ### 2. Balancing & Availability
 
@@ -173,13 +179,16 @@ The `likelihood` attribute determines how often an upgrade appears.
 - `likelihood = 10` (Rare, 10x less likely)
 - `likelihood = 500` (Common, 5x more likely)
 
-**Enable/Disable Logic:**
-You can remove an upgrade from the selection pool programmatically. For example, to disable an upgrade after it has been picked enough times:
-```python
-    def apply(self, player: Player):
-        player.some_stat += 1
-        if player.some_stat >= 5:
-            self.disable()  # Removes this upgrade from future level-up menus
+**is_active Flag:**
+Set `"is_active": false` in the JSON to completely remove an upgrade from the game without deleting the entry.
+
+**One-Time Upgrades:**
+Set `"one_time": true` for upgrades that should only be pickable once (e.g., permanent utility unlocks).
+
+**Stat Limits:**
+You can prevent an upgrade from appearing once a stat reaches a certain value:
+```json
+"limit": { "stat": "upgrade_choices", "value": 7 }
 ```
 
 ---
