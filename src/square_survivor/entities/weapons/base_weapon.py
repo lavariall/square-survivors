@@ -10,12 +10,13 @@ class Weapon(Entity):
         self.damage = damage
         self.knockback = knockback
 
-    def knockback_logic(self, enemy: Enemy):
-        """Apply knockback to an enemy based on weapon position."""
-        dist = math.hypot(enemy.x - self.x, enemy.y - self.y)
+    def knockback_logic(self, enemy: Enemy, source: Entity = None):
+        """Apply knockback to an enemy based on source position (defaults to self)."""
+        ref = source if source else self
+        dist = math.hypot(enemy.x - ref.x, enemy.y - ref.y)
         if dist > 0:
-            kx = (enemy.x - self.x) / dist
-            ky = (enemy.y - self.y) / dist
+            kx = (enemy.x - ref.x) / dist
+            ky = (enemy.y - ref.y) / dist
             enemy.x += kx * self.knockback
             enemy.y += ky * self.knockback
 

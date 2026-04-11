@@ -51,10 +51,10 @@ class PlayState(GameState):
             square = SaturnSquare(
                 self.player, 
                 offset, 
-                size=12, 
+                size=self.player.saturn_squares_size, 
                 damage=self.player.saturn_squares_damage,
                 hp=self.player.saturn_squares_hp,
-                knockback=50
+                knockback=self.player.saturn_squares_knockback
             )
             self.player.weapons.add(square)
 
@@ -112,10 +112,10 @@ class PlayState(GameState):
                 square = SaturnSquare(
                     self.player, 
                     offset, 
-                    size=12, 
+                    size=self.player.saturn_squares_size, 
                     damage=self.player.saturn_squares_damage,
                     hp=self.player.saturn_squares_hp,
-                    knockback=50
+                    knockback=self.player.saturn_squares_knockback
                 )
                 self.player.weapons.add(square)
         

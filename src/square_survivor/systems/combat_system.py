@@ -37,7 +37,7 @@ class CombatSystem:
                 
                 # Apply knockback
                 if weapon.knockback > 0:
-                    weapon.knockback_logic(enemy)
+                    weapon.knockback_logic(enemy, player)
 
         # Remove inactive weapons (handled by pygame.sprite.Group if using kill())
         # but just as a safety check for non-sprite weapons if any exist

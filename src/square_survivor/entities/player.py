@@ -40,8 +40,10 @@ class Player(Entity):
         
         # Saturn Square Stats
         self.saturn_squares_count = 3
+        self.saturn_squares_size = 50
         self.saturn_squares_hp = 50
         self.saturn_squares_damage = 10
+        self.saturn_squares_knockback = 50
         self.saturn_squares_lifespan_active = True
         self.saturn_squares_rotation_speed = 180.0
         
