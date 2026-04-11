@@ -35,11 +35,13 @@ classDiagram
     class PlayState { }
     class LevelUpState { }
     class PauseState { }
+    class GameOverState { }
     
     GameState <|-- MenuState
     GameState <|-- PlayState
     GameState <|-- LevelUpState
     GameState <|-- PauseState
+    GameState <|-- GameOverState
     Engine --> GameState : manages
     
     %% Entities
