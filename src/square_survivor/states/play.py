@@ -44,13 +44,11 @@ class PlayState(GameState):
         self._init_saturn_squares()
 
     def _init_saturn_squares(self):
-        """Initializes the rotating Saturn Squares."""
+        """Initializes the rotating Saturn Squares with slot indices."""
         for i in range(self.player.saturn_squares_count):
-            angle = i * (360 / self.player.saturn_squares_count)
-            offset = pygame.Vector2(100, 0).rotate(angle)
             square = SaturnSquare(
                 self.player, 
-                offset, 
+                i, 
                 size=self.player.saturn_squares_size, 
                 damage=self.player.saturn_squares_damage,
                 hp=self.player.saturn_squares_hp,
@@ -103,15 +101,15 @@ class PlayState(GameState):
         # Responsible for respawning Saturn Squares if they are active in the build
         active_squares = [w for w in self.player.weapons if isinstance(w, SaturnSquare)]
         if len(active_squares) < self.player.saturn_squares_count:
-            # Simple logic to add missing ones (could be improved with a respawn timer)
-            missing = self.player.saturn_squares_count - len(active_squares)
-            for _ in range(missing):
-                # Randomize starting angle for new squares if they were destroyed
-                angle = random.uniform(0, 360)
-                offset = pygame.Vector2(100, 0).rotate(angle)
+            # Fill missing indices to maintain even spread
+            current_indices = {w.index for w in active_squares}
+            all_indices = set(range(self.player.saturn_squares_count))
+            missing_indices = all_indices - current_indices
+            
+            for idx in missing_indices:
                 square = SaturnSquare(
                     self.player, 
-                    offset, 
+                    idx, 
                     size=self.player.saturn_squares_size, 
                     damage=self.player.saturn_squares_damage,
                     hp=self.player.saturn_squares_hp,

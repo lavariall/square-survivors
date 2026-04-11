@@ -56,6 +56,7 @@ classDiagram
     }
     class Player { 
         +int level_ups_pending
+        +float saturn_squares_angle
         +pygame.sprite.Group weapons
     }
     class Enemy {
