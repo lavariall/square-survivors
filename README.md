@@ -216,11 +216,21 @@ Weapons are modular entities that handle their own logic and collision interacti
 
 **Example Skeleton:**
 ```python
-@UpgradeManager.register
 class MyWeapon(Weapon):
+    def __init__(self, owner, size, damage, knockback):
+        super().__init__(owner.x, owner.y, size, damage, knockback)
+        self.owner = owner
+        # Initialize sprite/image here...
+
     def update(self, dt):
-        # Movement/Logic here
-        super().update(dt) # Handles lifespan/active state
+        # 1. Sync stats from owner (to support live upgrades)
+        self.size = getattr(self.owner, "my_weapon_size", self.size)
+        self.damage = getattr(self.owner, "my_weapon_damage", self.damage)
+        
+        # 2. Logic/Movement here
+        
+        # 3. Lifecycle check
+        super().update(dt) 
 ```
 
 ## 🚀 Building & Packaging

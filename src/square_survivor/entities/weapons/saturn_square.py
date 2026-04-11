@@ -1,5 +1,6 @@
 import pygame
 from .base_weapon import Weapon
+from ...constants import PLAYER_COLOR
 
 class SaturnSquare(Weapon):
     def __init__(self, owner, offset_vector, size: float, damage: float, hp: float, knockback: float):
@@ -13,14 +14,28 @@ class SaturnSquare(Weapon):
         self.active = True
         
         # Sprite setup with transparent surface as requested
-        self.image = pygame.Surface((size, size), pygame.SRCALPHA)
-        pygame.draw.rect(self.image, (0, 240, 255), (0, 0, size, size), 2) # Cyan border
+        self._rebuild_sprite()
+
+    def _rebuild_sprite(self):
+        """Rebuilds the image and rect based on current size."""
+        self.image = pygame.Surface((self.size, self.size), pygame.SRCALPHA)
+        pygame.draw.rect(self.image, PLAYER_COLOR, (0, 0, self.size, self.size), 2) # Semantic color
         self.rect = self.image.get_rect()
 
     def update(self, dt: float):
         # Update rotation speed from owner if needed (or use default)
         rotation_speed = getattr(self.owner, "saturn_squares_rotation_speed", 180.0)
         
+        # Sync size if it changed (e.g. from upgrade)
+        new_size = getattr(self.owner, "saturn_squares_size", self.size)
+        if new_size != self.size:
+            self.size = new_size
+            self._rebuild_sprite()
+            
+        # Sync other stats from owner
+        self.damage = getattr(self.owner, "saturn_squares_damage", self.damage)
+        self.knockback = getattr(self.owner, "saturn_squares_knockback", self.knockback)
+
         # Handle lifespan
         if getattr(self.owner, "saturn_squares_lifespan_active", True):
             self.life_timer -= dt

@@ -5,7 +5,7 @@ from ...entities.player import Player
 class RingDensity(Upgrade):
     name = "Ring Density"
     description = "Increases Saturn Square count by 1 (Max 7)"
-    likelihood = 100
+    likelihood = 500
     def apply(self, player: Player):
         player.saturn_squares_count += 1
         if player.saturn_squares_count >= 7:
@@ -31,7 +31,16 @@ class LethalSpin(Upgrade):
 class EternalSpin(Upgrade):
     name = "Eternal Spin"
     description = "Saturn Squares lifespan decrease turned off"
-    likelihood = 20
+    likelihood = 200
     def apply(self, player: Player):
         player.saturn_squares_lifespan_active = False
+        self.disable()
+
+@UpgradeManager.register
+class GiantRings(Upgrade):
+    name = "Giant Rings"
+    description = "Saturn Squares size +50%"
+    likelihood = 100
+    def apply(self, player: Player):
+        player.saturn_squares_size *= 1.5
         self.disable()
