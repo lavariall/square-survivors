@@ -77,7 +77,7 @@ classDiagram
         +float damage
         +float knockback
         +bool active
-        +knockback_logic(enemy)
+        +knockback_logic(enemy, source)
     }
     class SaturnSquare { }
     class Explosion { }
