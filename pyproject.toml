@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "square-survivor"
 version = "2.3.0"
-authors = [{ name = "Lavariall", email = "n/a" }]
+authors = [{ name = "Lavariall" }]
 description = "A 2D Top-Down Roguelike Survival Game built with pygame-ce."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -17,5 +17,11 @@ dependencies = [
 [project.scripts]
 square-survivor = "square_survivor.main:main"
 
+[tool.setuptools]
+include-package-data = true
+
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+square_survivor = ["configs/*.json"]
