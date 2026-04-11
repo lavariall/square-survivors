@@ -3,6 +3,7 @@ from typing import Optional
 from ..states import GameState
 from .input_system import InputSystem
 from .config_manager import ConfigManager
+from ..systems.upgrade_system.base_upgrade import UpgradeManager
 
 class Engine:
     """The core wrapper that polls events and manages ticks."""
@@ -10,6 +11,9 @@ class Engine:
         pygame.init()
         # Initialize configuration
         self.config = ConfigManager.get_instance()
+        
+        # Initialize Upgrade System
+        UpgradeManager.initialize_from_config(self.config.upgrades)
         
         self.screen = pygame.display.set_mode((
             self.config.display.window_width, 

@@ -11,6 +11,7 @@ from ..models.display_config import DisplayConfig
 from ..models.difficulty_config import DifficultyConfig
 from ..models.ui_config import UIConfig
 from ..models.debug_config import DebugConfig
+from ..models.upgrade_models import UpgradesConfig
 
 class ConfigManager:
     """Handles loading and hot-reloading of all game configuration files."""
@@ -30,6 +31,7 @@ class ConfigManager:
         self.difficulty: DifficultyConfig = DifficultyConfig(tiers={}, priorities={})
         self.ui: UIConfig = UIConfig()
         self.debug: DebugConfig = DebugConfig()
+        self.upgrades: UpgradesConfig = UpgradesConfig(categories={})
         
         # File modification tracking
         self._last_loaded: dict[str, float] = {}
@@ -52,6 +54,7 @@ class ConfigManager:
         self.difficulty = DifficultyConfig.from_json(self.config_dir / "difficulty.json")
         self.ui = UIConfig.from_json(self.config_dir / "ui_theme.json")
         self.debug = DebugConfig.from_json(self.config_dir / "debug_settings.json")
+        self.upgrades = UpgradesConfig.from_json(self.config_dir / "upgrades.json")
         
         # Update modification times
         for config_file in self.config_dir.glob("*.json"):
