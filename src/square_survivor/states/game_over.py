@@ -20,7 +20,7 @@ class GameOverState(GameState):
         
         self.input_box = InputBox(WINDOW_WIDTH//2 - 100, WINDOW_HEIGHT//2, 200, 40, self.info_font)
         self.input_box.active = True
-        self.save_btn = Button(WINDOW_WIDTH//2 - 100, WINDOW_HEIGHT//2 + 60, 200, 50, "Save & Restart", self.info_font, self.save_score)
+        self.save_btn = Button(WINDOW_WIDTH//2 - 100, WINDOW_HEIGHT//2 + 60, 200, 50, "Save & Menu", self.info_font, self.save_score)
         
     def save_score(self):
         scores = []
@@ -57,12 +57,14 @@ class GameOverState(GameState):
             pass
             
         from .menu import MenuState
+        self.engine.input.clear_all()
         self.engine.change_state(MenuState(self.engine))
 
     def handle_event(self, event):
         self.input_box.handle_event(event)
         self.save_btn.handle_event(event)
         if self.engine.input.was_just_pressed(InputAction.CONFIRM):
+            self.engine.input.consume_action(InputAction.CONFIRM)
             self.save_score()
         
     def update(self, dt):
@@ -87,5 +89,5 @@ class GameOverState(GameState):
         self.save_btn.draw(screen)
         
         # Keyboard hint
-        hint = self.info_font.render("Press [ENTER] to Save & Restart", True, PLAYER_COLOR)
+        hint = self.info_font.render("Press [ENTER] to Save & Return to Menu", True, PLAYER_COLOR)
         screen.blit(hint, hint.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 40)))

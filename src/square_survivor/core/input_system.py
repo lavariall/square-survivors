@@ -165,6 +165,18 @@ class InputSystem:
             return InputAction.CONFIRM in self.just_pressed_actions
         return action in self.just_pressed_actions
 
+    def consume_action(self, action: InputAction):
+        """Consume a 'just pressed' action so other systems don't see it this frame."""
+        if action in self.just_pressed_actions:
+            self.just_pressed_actions.remove(action)
+        if action == InputAction.CONFIRM and InputAction.DASH in self.just_pressed_actions:
+            self.just_pressed_actions.remove(InputAction.DASH)
+
+    def clear_all(self):
+        """Reset all input states (used during state transitions)."""
+        self.pressed_actions.clear()
+        self.just_pressed_actions.clear()
+
     def get_movement_vector(self) -> pygame.Vector2:
         """Returns a normalized Vector2 based on current movement actions."""
         # For movement, we should also check analog sticks if present
