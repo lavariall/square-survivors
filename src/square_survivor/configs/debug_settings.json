@@ -1,5 +1,5 @@
 {
-  "hot_reloading_enabled": true,
+  "hot_reloading_enabled": false,
   "show_fps": false,
   "god_mode": false
 }

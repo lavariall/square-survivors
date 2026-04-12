@@ -16,7 +16,7 @@
   "explosion_knockback": 300.0,
   "saturn_squares_count": 3,
   "saturn_squares_size": 50.0,
-  "saturn_squares_hp": 50.0,
+  "saturn_squares_hp": 30.0,
   "saturn_squares_damage": 10.0,
   "saturn_squares_knockback": 100.0,
   "saturn_squares_rotation_speed": 180.0,
