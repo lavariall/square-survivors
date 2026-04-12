@@ -8,11 +8,22 @@
       "speed_scale_per_sec": 0.05,
       "damage_base": 10.0,
       "damage_scale_per_sec": 0.05,
+      "armor_base": 5.0,
+      "armor_scale_per_sec": 0.01,
       "size_normal": 20,
       "size_elite": 30,
-      "color_normal": [255, 0, 60],
-      "color_elite": [255, 140, 0],
-      "elite_hp_mult": 2.0
+      "color_normal": [
+        255,
+        0,
+        60
+      ],
+      "color_elite": [
+        255,
+        140,
+        0
+      ],
+      "elite_hp_mult": 2.0,
+      "elite_armor_mult": 1.5
     }
   },
   "spawn_base_count": 20,

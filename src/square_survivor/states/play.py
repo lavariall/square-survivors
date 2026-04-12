@@ -162,7 +162,8 @@ class PlayState(GameState):
             # Player takes damage
             if e.rect.colliderect(player_rect):
                 if self.player.invuln_timer <= 0:
-                    self.player.hp -= e.damage
+                    damage_taken = max(1.0, e.damage - self.player.armor)
+                    self.player.hp -= damage_taken
                     self.player.invuln_timer = 0.5
                     if self.player.hp <= 0:
                         from .game_over import GameOverState

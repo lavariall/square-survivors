@@ -26,7 +26,8 @@ class CombatSystem:
                     continue
                 
                 # Apply damage
-                enemy.hp -= weapon.damage
+                damage_taken = max(1.0, weapon.damage - enemy.armor)
+                enemy.hp -= damage_taken
                 
                 # If the weapon has health (like SaturnSquare), reduce it
                 if hasattr(weapon, 'hp'):

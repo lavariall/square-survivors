@@ -4,7 +4,7 @@ from .base_entity import Entity
 from ..core.config_manager import ConfigManager
 
 class Enemy(Entity):
-    def __init__(self, x: float, y: float, hp: float, speed: float, damage: float, is_elite: bool = False):
+    def __init__(self, x: float, y: float, hp: float, speed: float, damage: float, armor: float = 0.0, is_elite: bool = False):
         self.config = ConfigManager.get_instance().enemies.enemy_types["basic"]
         size = self.config.size_elite if is_elite else self.config.size_normal
         super().__init__(x, y, size)
@@ -12,6 +12,7 @@ class Enemy(Entity):
         self.hp = hp
         self.speed = speed
         self.damage = damage
+        self.armor = armor
         self.is_elite = is_elite
 
     def update(self, dt: float, target_x: float, target_y: float):

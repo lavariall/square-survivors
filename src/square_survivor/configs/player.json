@@ -2,6 +2,7 @@
   "base_speed": 200.0,
   "max_hp": 100.0,
   "health_regen": 0.0,
+  "armor": 0.0,
   "max_stamina": 100.0,
   "stamina_regen": 20.0,
   "xp_required_base": 10,
