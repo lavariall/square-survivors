@@ -1,7 +1,7 @@
 import pygame
 from typing import Optional
 from ..states import GameState
-from .input_system import InputSystem
+from .input_system import InputSystem, InputAction
 from .config_manager import ConfigManager
 from ..systems.upgrade_system.base_upgrade import UpgradeManager
 
@@ -15,15 +15,36 @@ class Engine:
         # Initialize Upgrade System
         UpgradeManager.initialize_from_config(self.config.upgrades)
         
-        self.screen = pygame.display.set_mode((
-            self.config.display.window_width, 
-            self.config.display.window_height
-        ))
+        # Virtual Resolution Setup
+        self.virtual_width = self.config.display.window_width
+        self.virtual_height = self.config.display.window_height
+        self.virtual_screen = pygame.Surface((self.virtual_width, self.virtual_height))
+        
+        self.screen: Optional[pygame.Surface] = None
+        self._reinit_display()
+        
         pygame.display.set_caption(self.config.display.title)
         self.clock = pygame.time.Clock()
         self.running = True
         self.input = InputSystem()
         self.current_state: Optional[GameState] = None
+
+    def _reinit_display(self):
+        """Initializes or re-initializes the physical display surface."""
+        flags = 0
+        if self.config.display.fullscreen:
+            flags |= pygame.FULLSCREEN
+            # Fullscreen at native resolution
+            target_res = (0, 0)
+        else:
+            target_res = (self.virtual_width, self.virtual_height)
+        
+        self.screen = pygame.display.set_mode(target_res, flags)
+
+    def _handle_fullscreen_toggle(self):
+        """Toggles fullscreen state and re-initializes display."""
+        self.config.display.fullscreen = not self.config.display.fullscreen
+        self._reinit_display()
 
     def change_state(self, new_state: GameState):
         self.current_state = new_state
@@ -40,6 +61,9 @@ class Engine:
             events = pygame.event.get()
             self.input.update(events)
             
+            if self.input.was_just_pressed(InputAction.TOGGLE_FULLSCREEN):
+                self._handle_fullscreen_toggle()
+            
             for event in events:
                 if event.type == pygame.QUIT:
                     self.running = False
@@ -49,9 +73,26 @@ class Engine:
             if self.current_state:
                 self.current_state.update(dt)
 
-            self.screen.fill(self.config.world.bg_color)
+            # 1. Draw to virtual screen
+            self.virtual_screen.fill(self.config.world.bg_color)
             if self.current_state:
-                self.current_state.draw(self.screen)
+                self.current_state.draw(self.virtual_screen)
+            
+            # 2. Scale and center on physical screen
+            self.screen.fill((0, 0, 0)) # Letterboxing bars
+            
+            sw, sh = self.screen.get_size()
+            scale = min(sw / self.virtual_width, sh / self.virtual_height)
+            
+            new_w = int(self.virtual_width * scale)
+            new_h = int(self.virtual_height * scale)
+            
+            scaled_surface = pygame.transform.scale(self.virtual_screen, (new_w, new_h))
+            
+            x_off = (sw - new_w) // 2
+            y_off = (sh - new_h) // 2
+            
+            self.screen.blit(scaled_surface, (x_off, y_off))
             
             pygame.display.flip()
         
