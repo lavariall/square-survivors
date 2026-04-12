@@ -33,6 +33,7 @@ class PlayState(GameState):
         
         self.time_survived = 0.0
         self.camera_offset = [0.0, 0.0]
+        self.boss_spawned = False
         
         # UI
         self.font = pygame.font.SysFont("Arial", 24, bold=True)
@@ -138,7 +139,7 @@ class PlayState(GameState):
                 self.player.kills += 1
                 
                 # Choose orb: Inactive -> New (if under cap) -> Oldest Active (force recycle)
-                xp_val = 2 if e.is_elite else 1
+                xp_val = e.xp_value * (2 if e.is_elite else 1)
                 xp = next((x for x in self.xp_orbs if not x.active), None)
                 
                 if not xp:
@@ -204,6 +205,13 @@ class PlayState(GameState):
         # Spawn new enemies at the end of the frame
         win_w, win_h = self.config.display.window_width, self.config.display.window_height
         viewport = (self.camera_offset[0], self.camera_offset[1], win_w, win_h)
+        
+        # Boss spawn logic at 5 minutes
+        if self.time_survived >= 300.0 and not self.boss_spawned:
+            WaveManager.spawn_boss(self.time_survived, viewport, self.player, self.enemies)
+            self.boss_spawned = True
+            print("BOSS SPAWNED!")
+
         WaveManager.spawn_wave(self.time_survived, viewport, self.player, self.enemies, self.difficulty_settings)
 
     def draw(self, screen: pygame.Surface):

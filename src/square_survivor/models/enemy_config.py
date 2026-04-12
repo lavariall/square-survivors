@@ -23,6 +23,7 @@ class EnemyTypeConfig(BaseConfig):
     size_elite: int = Field(default=30, description="Pixel size of elite version")
     color_normal: list[int] = Field(default=[255, 0, 60], description="Base color (R, G, B)")
     color_elite: list[int] = Field(default=[255, 140, 0], description="Elite variant color (R, G, B)")
+    xp_value: int = Field(default=1, description="Base XP granted when killed")
     
     # Elite Scaling
     elite_hp_mult: float = Field(default=2.0, description="Multiplier for elite health")

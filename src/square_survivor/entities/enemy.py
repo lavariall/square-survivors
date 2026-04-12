@@ -4,16 +4,21 @@ from .base_entity import Entity
 from ..core.config_manager import ConfigManager
 
 class Enemy(Entity):
-    def __init__(self, x: float, y: float, hp: float, speed: float, damage: float, armor: float = 0.0, is_elite: bool = False):
-        self.config = ConfigManager.get_instance().enemies.enemy_types["basic"]
+    def __init__(self, x: float, y: float, hp: float, speed: float, damage: float, armor: float = 0.0, is_elite: bool = False, type_name: str = "basic"):
+        self.type_name = type_name
+        self.config = ConfigManager.get_instance().enemies.enemy_types.get(type_name, 
+                      ConfigManager.get_instance().enemies.enemy_types["basic"])
+                      
         size = self.config.size_elite if is_elite else self.config.size_normal
         super().__init__(x, y, size)
+        
         self.max_hp = hp
         self.hp = hp
         self.speed = speed
         self.damage = damage
         self.armor = armor
         self.is_elite = is_elite
+        self.xp_value = self.config.xp_value
 
     def update(self, dt: float, target_x: float, target_y: float):
         if not self.active: return

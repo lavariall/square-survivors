@@ -67,9 +67,11 @@ classDiagram
         +pygame.sprite.Group weapons
     }
     class Enemy {
+        +str type_name
         +bool is_elite
         +int size
         +float armor
+        +int xp_value
     }
     class XPOrb { 
         +float timer
@@ -103,6 +105,7 @@ classDiagram
     %% Systems
     class WaveManager {
         +spawn_wave(time, viewport, player, enemies, difficulty)
+        +spawn_boss(time, viewport, player, enemies)
     }
     class DifficultySettings {
         +float spawn_mult
@@ -254,11 +257,26 @@ You can enable hot-reloading for rapid balancing by editing `src/square_survivor
 - Set `"hot_reload": true` to have the game check for JSON changes every frame.
 
 **Elite Enemy Properties:**
-- **Visuals**: Orange (`ELITE_COLOR`), 30px size.
+- **Visuals**: Orange (`ELITE_COLOR`), 30px size (Basic).
 - **HP & Armor**: 2x Normal HP, 1.5x Normal Armor.
-- **XP**: Drops 2 XP orbs (Double Reward).
+- **XP**: Drops 2x Base XP orbs.
 
-### 6. Adding a New Weapon
+**Boss Enemy Properties:**
+- **Spawn**: Spawns exactly once at the 5-minute mark (300s).
+- **Visuals**: Large Purple square, 100px-200px size.
+- **Stats**: 10x HP compared to Basic, high damage, and flat damage reduction (20-30 Armor).
+- **XP**: Drops a massive amount of XP (50x Base).
+
+### 6. Adding a New Enemy Type
+
+The enemy system is data-driven via `enemies.json`.
+
+1. Open `src/square_survivor/configs/enemies.json`.
+2. Add a new key to the `enemy_types` dictionary.
+3. Define its base stats (`hp_base`, `speed_base`, `damage_base`, `armor_base`, `size_normal`, `color_normal`, `xp_value`).
+4. **Trigger**: If the enemy is a special spawn (like the Boss), add a trigger in `PlayState.update` that calls `WaveManager.spawn_boss` or a similar logic. For standard background enemies, the `WaveManager.spawn_wave` logic can be updated to handle a pool of weighted types.
+
+### 7. Adding a New Weapon
 Weapons are modular entities that handle their own logic and collision interaction.
 
 1. Create a new file in `src/square_survivor/entities/weapons/`.
