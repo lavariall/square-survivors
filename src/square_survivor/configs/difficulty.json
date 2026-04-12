@@ -13,13 +13,13 @@
       "obstacle_density": 0.02
     },
     "Hard": {
-      "spawn_mult": 1.4,
+      "spawn_mult": 2.0,
       "elite_chance_max": 1.0,
       "endgame_time": 120.0,
       "obstacle_density": 0.015
     },
     "Ultra": {
-      "spawn_mult": 1.4,
+      "spawn_mult": 3.0,
       "elite_chance_max": 1.0,
       "endgame_time": 240.0,
       "obstacle_density": 0.005

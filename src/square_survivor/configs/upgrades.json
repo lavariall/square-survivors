@@ -212,7 +212,7 @@
     "giant_rings": {
       "name": "Giant Rings",
       "description": "Saturn Squares size +50%",
-      "likelihood": 100,
+      "likelihood": 500,
       "is_active": true,
       "one_time": true,
       "effects": [
