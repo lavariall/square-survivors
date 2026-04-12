@@ -31,6 +31,7 @@ class Player(Entity):
         self.dash_cooldown = 0.0
         self.dash_cost = player_cfg.dash_cost
         self.dash_distance = player_cfg.dash_distance
+        self.invuln_after_dash = player_cfg.invuln_after_dash
         
         # Weapons Group
         self.weapons = pygame.sprite.Group()
@@ -50,11 +51,19 @@ class Player(Entity):
         self.saturn_squares_knockback = player_cfg.saturn_squares_knockback
         self.saturn_squares_lifespan_active = True
         self.saturn_squares_rotation_speed = player_cfg.saturn_squares_rotation_speed
+        self.saturn_squares_dash_boost = player_cfg.saturn_squares_dash_boost
+        self.saturn_squares_dash_boost_duration = player_cfg.saturn_squares_dash_boost_duration
         self.saturn_squares_angle = 0.0
+        
+        # Magic Dash Stats
+        self.dash_heal_amount = player_cfg.dash_heal_amount
+        self.dash_sprint_boost = player_cfg.dash_sprint_boost
+        self.dash_sprint_duration = player_cfg.dash_sprint_duration
         
         self.pickup_radius = player_cfg.pickup_radius
         self.experience_booster = 1.0
         self.invuln_timer = 0.0
+        self.move_speed_modifier = 1.0
 
     def update(self, dt: float, input_system):
         # Use centralized movement vector
@@ -81,8 +90,9 @@ class Player(Entity):
             self.hp = min(self.max_hp, self.hp + self.health_regen * dt)
 
         # Movement
-        self.x += dx * self.base_speed * dt
-        self.y += dy * self.base_speed * dt
+        current_speed = self.base_speed * self.move_speed_modifier
+        self.x += dx * current_speed * dt
+        self.y += dy * current_speed * dt
         
         # Clamp bounds
         map_size = self.config.world.map_size
@@ -106,6 +116,13 @@ class Player(Entity):
                 
             self.x += dx * self.dash_distance
             self.y += dy * self.dash_distance
+
+            # Player after dash effects
+            self.invuln_timer = self.invuln_after_dash
+            
+            # Weapon after dash effects
+            for weapon in self.weapons:
+                weapon.on_after_dash(dt)
             return True
         return False
         

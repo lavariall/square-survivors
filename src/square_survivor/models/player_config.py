@@ -17,6 +17,7 @@ class PlayerConfig(BaseConfig):
     dash_cooldown_max: float = Field(default=1.5, description="Seconds between dashes")
     dash_cost: float = Field(default=30.0, description="Stamina cost per dash")
     dash_distance: float = Field(default=100.0, description="Distance covered in one dash")
+    invuln_after_dash: float = Field(default=0.5, description="Seconds of invulnerability after dashing")
     
     # Weapon: Explosion Stats
     explosion_radius: float = Field(default=150.0, description="Radius of effect")
@@ -31,6 +32,13 @@ class PlayerConfig(BaseConfig):
     saturn_squares_damage: float = Field(default=10.0, description="Damage per hit")
     saturn_squares_knockback: float = Field(default=50.0, description="Knockback force")
     saturn_squares_rotation_speed: float = Field(default=180.0, description="Degrees per second")
+    saturn_squares_dash_boost: float = Field(default=2.0, description="Multiplier for rotation speed after dash")
+    saturn_squares_dash_boost_duration: float = Field(default=0.5, description="Duration of the boost in seconds")
+    
+    # Magic effects (Invisible weapons)
+    dash_heal_amount: float = Field(default=0.0, description="Health restored after dash")
+    dash_sprint_boost: float = Field(default=1.5, description="Multiplier for move speed after dash")
+    dash_sprint_duration: float = Field(default=1.0, description="Duration of the sprint in seconds")
     
     # Visuals
     color: list[int] = Field(default=[0, 240, 255], description="Main player color (R, G, B)")
