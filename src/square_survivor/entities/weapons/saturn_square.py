@@ -12,10 +12,15 @@ class SaturnSquare(Weapon):
         self.hp = hp
         self.max_hp = hp
         self.life_timer = 10.0 # Default 10 seconds
+        self.dash_boost_timer = 0.0
         self.active = True
         
         # Sprite setup with transparent surface as requested
         self._rebuild_sprite()
+
+    def on_after_dash(self, dt: float):
+        """Increase rotation speed temporarily."""
+        self.dash_boost_timer = getattr(self.owner, "saturn_squares_dash_boost_duration", 0.5)
 
     def _rebuild_sprite(self):
         """Rebuilds the image and rect based on current size."""
@@ -25,8 +30,17 @@ class SaturnSquare(Weapon):
         self.rect = self.image.get_rect()
 
     def update(self, dt: float):
+        # Update dash boost timer
+        if self.dash_boost_timer > 0:
+            self.dash_boost_timer -= dt
+            
         # Update rotation speed from owner if needed (or use default)
         rotation_speed = getattr(self.owner, "saturn_squares_rotation_speed", 180.0)
+        
+        # Apply dash boost
+        if self.dash_boost_timer > 0:
+            boost_mult = getattr(self.owner, "saturn_squares_dash_boost", 2.0)
+            rotation_speed *= boost_mult
         
         # Sync size if it changed (e.g. from upgrade)
         new_size = getattr(self.owner, "saturn_squares_size", self.size)

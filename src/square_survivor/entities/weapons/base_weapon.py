@@ -23,6 +23,10 @@ class Weapon(Entity):
     def update(self, dt: float):
         """Update logic for the weapon."""
         pass
+        
+    def on_after_dash(self, dt: float):
+        """Standardized hook called by the player after a dash."""
+        pass
 
     def draw(self, screen: pygame.Surface, camera_offset: tuple[float, float]):
         """Default draw logic."""

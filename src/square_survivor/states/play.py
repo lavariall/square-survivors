@@ -12,6 +12,8 @@ from ..systems.combat_system import CombatSystem
 from ..systems.wave_manager import WaveManager
 from ..entities.weapons.explosion import Explosion
 from ..entities.weapons.saturn_square import SaturnSquare
+from ..entities.weapons.healing_magic import HealingMagic
+from ..entities.weapons.sprint_magic import SprintMagic
 from ..ui.components import ProgressBar
 from ..core.config_manager import ConfigManager
 
@@ -115,6 +117,15 @@ class PlayState(GameState):
                     knockback=self.player.saturn_squares_knockback
                 )
                 self.player.weapons.add(square)
+                
+        # Handle Invisible Magic Weapons
+        if self.player.dash_heal_amount > 0:
+            if not any(isinstance(w, HealingMagic) for w in self.player.weapons):
+                self.player.weapons.add(HealingMagic(self.player))
+        
+        if self.player.dash_sprint_boost > 1.0:
+            if not any(isinstance(w, SprintMagic) for w in self.player.weapons):
+                self.player.weapons.add(SprintMagic(self.player))
         
         # Enemy Death / XP Spawning / Damage
         player_rect = self.player.get_rect()

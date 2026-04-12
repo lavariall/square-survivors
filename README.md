@@ -57,6 +57,9 @@ classDiagram
     class Player { 
         +int level_ups_pending
         +float saturn_squares_angle
+        +float invuln_after_dash
+        +float dash_heal_amount
+        +float dash_sprint_boost
         +pygame.sprite.Group weapons
     }
     class Enemy {
@@ -78,14 +81,19 @@ classDiagram
         +float damage
         +float knockback
         +bool active
+        +on_after_dash(dt)
         +knockback_logic(enemy, source)
     }
     class SaturnSquare { }
     class Explosion { }
+    class HealingMagic { }
+    class SprintMagic { }
 
     Entity <|-- Weapon
     Weapon <|-- SaturnSquare
     Weapon <|-- Explosion
+    Weapon <|-- HealingMagic
+    Weapon <|-- SprintMagic
 
     %% Systems
     class WaveManager {
@@ -150,16 +158,18 @@ To add a new upgrade:
 3. Add a new entry with a unique key.
 4. Define the `name`, `description`, `likelihood`, and a list of `effects`.
 
-**Example JSON implementation for "Iron Skin":**
+**Example JSON implementation for "Phase Dash":**
 ```json
-"iron_skin": {
-  "name": "Iron Skin",
-  "description": "Permanent +2.0s Invulnerability per Hit",
-  "likelihood": 50,
+"phase_dash": {
+  "name": "Phase Dash",
+  "description": "Invulnerability after dash +1s (Max 1.5)",
+  "likelihood": 500,
   "is_active": true,
+  "one_time": true,
   "effects": [
-    { "stat": "base_invuln_time", "op": "add", "value": 2.0 }
-  ]
+    { "stat": "invuln_after_dash", "op": "add", "value": 1.0 }
+  ],
+  "limit": { "stat": "invuln_after_dash", "value": 1.5 }
 }
 ```
 
@@ -267,6 +277,22 @@ class MyWeapon(Weapon):
         
         # 3. Lifecycle check
         super().update(dt) 
+
+### 7. Invisible Magic Weapons (Global Utility)
+
+For effects that aren't tied to a physical projectile (like healing or speed boosts), use the **Invisible Weapon** pattern. This ensures the effect stays decoupled from the core `Player` class logic.
+
+1. Create a class inheriting from `Weapon`.
+2. Override `on_after_dash(dt)` to implement logic (e.g., `owner.hp += 5`).
+3. Set `draw()` to `pass`.
+4. Ensure the weapon is added to `player.weapons` in `PlayState` when the corresponding stat (unlocked via upgrade) is greater than zero.
+
+**Example logic for Healing Magic:**
+```python
+def on_after_dash(self, dt):
+    if self.owner.dash_heal_amount > 0:
+        self.owner.hp = min(self.owner.max_hp, self.owner.hp + self.owner.dash_heal_amount)
+```
 ```
 
 ## 🚀 Building & Packaging

@@ -95,6 +95,55 @@
           "value": 1.25
         }
       ]
+    },
+    "phase_dash": {
+      "name": "Phase Dash",
+      "description": "Invulnerability after dash +1s (Max 1.5)",
+      "likelihood": 500,
+      "is_active": true,
+      "one_time": true,
+      "effects": [
+        {
+          "stat": "invuln_after_dash",
+          "op": "add",
+          "value": 1.0
+        }
+      ],
+      "limit": {
+        "stat": "invuln_after_dash",
+        "value": 1.5
+      }
+    },
+    "healing_dash": {
+      "name": "Healing Dash",
+      "description": "Restore 5 HP after each dash (Max 15)",
+      "likelihood": 30,
+      "is_active": true,
+      "effects": [
+        {
+          "stat": "dash_heal_amount",
+          "op": "add",
+          "value": 5.0
+        }
+      ],
+      "limit": {
+        "stat": "dash_heal_amount",
+        "value": 15.0
+      }
+    },
+    "sprint_dash": {
+      "name": "Sprint Dash",
+      "description": "Movement Speed +50% for 1s after dash",
+      "likelihood": 40,
+      "is_active": true,
+      "effects": [
+        {
+          "stat": "dash_sprint_boost",
+          "op": "set",
+          "value": 1.5
+        }
+      ],
+      "one_time": true
     }
   },
   "weapon_explosion": {
@@ -194,6 +243,33 @@
           "value": 1.3
         }
       ]
+    },
+    "heavy_hitter": {
+      "name": "Heavy Hitter",
+      "description": "Saturn Rings Knockback +50%",
+      "likelihood": 100,
+      "is_active": true,
+      "effects": [
+        {
+          "stat": "saturn_squares_knockback",
+          "op": "mul",
+          "value": 1.5
+        }
+      ]
+    },
+    "momentum": {
+      "name": "Momentum",
+      "description": "Saturn Rings spin 2x faster briefly after dashing",
+      "likelihood": 100,
+      "is_active": true,
+      "effects": [
+        {
+          "stat": "saturn_squares_dash_boost",
+          "op": "set",
+          "value": 2.0
+        }
+      ],
+      "one_time": true
     },
     "eternal_spin": {
       "name": "Eternal Spin",
