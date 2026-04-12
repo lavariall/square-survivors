@@ -12,6 +12,7 @@ class InputAction(Enum):
     BACK = auto()
     QUIT = auto()
     PAUSE = auto()
+    TOGGLE_FULLSCREEN = auto()
 
 class InputSystem:
     def __init__(self):
@@ -28,6 +29,7 @@ class InputSystem:
             pygame.K_SPACE: InputAction.CONFIRM,
             pygame.K_RETURN: InputAction.CONFIRM,
             pygame.K_ESCAPE: InputAction.PAUSE,
+            pygame.K_F11: InputAction.TOGGLE_FULLSCREEN,
         }
         
         # Playstation 4 Controller Mappings (User verified)
@@ -98,6 +100,11 @@ class InputSystem:
                     action = self.key_map[event.key]
                     self.pressed_actions.add(action)
                     self.just_pressed_actions.add(action)
+                
+                # Special case: Alt+Enter for Fullscreen
+                if event.key == pygame.K_RETURN and (event.mod & pygame.KMOD_ALT):
+                    self.pressed_actions.add(InputAction.TOGGLE_FULLSCREEN)
+                    self.just_pressed_actions.add(InputAction.TOGGLE_FULLSCREEN)
                     
             elif event.type == pygame.KEYUP:
                 if event.key in self.key_map:

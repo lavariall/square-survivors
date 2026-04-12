@@ -11,6 +11,7 @@ Square Survivor is a modular, Object-Oriented 2D roguelike survival game built w
 | **Selection** | Mouse | Mouse Hover | Joystick Movement |
 | **Action** | Auto-Attack | Left Click / Key Submit | Confirm Button |
 | **Pause / Back** | `ESC` | `ESC` | **Circle (PS4)** / **B (Xbox)** |
+| **Fullscreen** | `F11` / `Alt+Enter` | - | - |
 
 ---
 
@@ -24,6 +25,8 @@ classDiagram
     class Engine {
         +run()
         +change_state(state)
+        +pygame.Surface virtual_screen
+        +_reinit_display()
     }
     class GameState {
         <<abstract>>
@@ -137,6 +140,7 @@ classDiagram
         +enemies
         +world
         +difficulty
+        +display
         +ui_theme
         +debug
     }
