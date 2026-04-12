@@ -15,6 +15,9 @@ class EnemyTypeConfig(BaseConfig):
     damage_base: float = Field(default=10.0, description="Base damage dealt to player")
     damage_scale_per_sec: float = Field(default=0.05, description="Damage increase per second of survival")
     
+    armor_base: float = Field(default=5.0, description="Base armor points")
+    armor_scale_per_sec: float = Field(default=0.0, description="Armor increase per second of survival")
+    
     # Visuals & Size
     size_normal: int = Field(default=20, description="Pixel size of normal version")
     size_elite: int = Field(default=30, description="Pixel size of elite version")
@@ -23,6 +26,7 @@ class EnemyTypeConfig(BaseConfig):
     
     # Elite Scaling
     elite_hp_mult: float = Field(default=2.0, description="Multiplier for elite health")
+    elite_armor_mult: float = Field(default=1.5, description="Multiplier for elite armor")
 
 class EnemiesConfig(BaseConfig):
     """Configuration for all enemies and spawn limits."""

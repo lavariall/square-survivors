@@ -16,6 +16,7 @@ class Player(Entity):
         self.max_hp = player_cfg.max_hp
         self.hp = self.max_hp
         self.health_regen = player_cfg.health_regen
+        self.armor = player_cfg.armor
         self.max_stamina = player_cfg.max_stamina
         self.stamina = self.max_stamina
         self.stamina_regen = player_cfg.stamina_regen

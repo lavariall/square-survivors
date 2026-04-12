@@ -1,5 +1,18 @@
 {
   "player": {
+    "iron_skin": {
+      "name": "Iron Skin",
+      "description": "Armor +2",
+      "likelihood": 100,
+      "is_active": true,
+      "effects": [
+        {
+          "stat": "armor",
+          "op": "add",
+          "value": 2.0
+        }
+      ]
+    },
     "agility": {
       "name": "Agility",
       "description": "Dash Cooldown -40%",

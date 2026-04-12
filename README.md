@@ -60,11 +60,13 @@ classDiagram
         +float invuln_after_dash
         +float dash_heal_amount
         +float dash_sprint_boost
+        +float armor
         +pygame.sprite.Group weapons
     }
     class Enemy {
         +bool is_elite
         +int size
+        +float armor
     }
     class XPOrb { 
         +float timer
@@ -249,7 +251,7 @@ You can enable hot-reloading for rapid balancing by editing `src/square_survivor
 
 **Elite Enemy Properties:**
 - **Visuals**: Orange (`ELITE_COLOR`), 30px size.
-- **HP**: 2x Normal HP.
+- **HP & Armor**: 2x Normal HP, 1.5x Normal Armor.
 - **XP**: Drops 2 XP orbs (Double Reward).
 
 ### 6. Adding a New Weapon

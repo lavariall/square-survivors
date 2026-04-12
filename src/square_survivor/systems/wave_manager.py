@@ -58,8 +58,10 @@ class WaveManager:
         
         # Calculate scaling stats
         hp = basic_cfg.hp_base + (time_survived * basic_cfg.hp_scale_per_sec)
+        armor = basic_cfg.armor_base + (time_survived * basic_cfg.armor_scale_per_sec)
         if is_elite:
             hp *= basic_cfg.elite_hp_mult
+            armor *= basic_cfg.elite_armor_mult
             
         speed = basic_cfg.speed_base + random.random() * basic_cfg.speed_variance + (time_survived * basic_cfg.speed_scale_per_sec)
         dmg = basic_cfg.damage_base + (time_survived * basic_cfg.damage_scale_per_sec)
@@ -75,11 +77,12 @@ class WaveManager:
                 e.hp, e.max_hp = hp, hp
                 e.speed = speed
                 e.damage = dmg
+                e.armor = armor
                 spawned = True
                 break
                 
         if not spawned:
-            enemies.append(Enemy(sx, sy, hp, speed, dmg, is_elite=is_elite))
+            enemies.append(Enemy(sx, sy, hp, speed, dmg, armor=armor, is_elite=is_elite))
 
 if __name__ == "__main__":
     p = Player()

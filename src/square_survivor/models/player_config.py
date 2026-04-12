@@ -7,6 +7,7 @@ class PlayerConfig(BaseConfig):
     base_speed: float = Field(default=200.0, description="Movement speed in pixels per second")
     max_hp: float = Field(default=100.0, description="Maximum health points")
     health_regen: float = Field(default=0.0, description="Health regenerated per second")
+    armor: float = Field(default=0.0, description="Reduces incoming damage by a flat amount")
     max_stamina: float = Field(default=100.0, description="Maximum stamina points")
     stamina_regen: float = Field(default=20.0, description="Stamina regenerated per second")
     xp_required_base: int = Field(default=10, description="Base XP required for the first level up")
