@@ -84,6 +84,50 @@ class WaveManager:
         if not spawned:
             enemies.append(Enemy(sx, sy, hp, speed, dmg, armor=armor, is_elite=is_elite))
 
+    @staticmethod
+    def spawn_boss(time_survived: float, viewport: tuple[float, float, float, float], player: Player, enemies: List[Enemy]):
+        """Special one-time spawn for the Boss entity."""
+        config = ConfigManager.get_instance()
+        enemy_cfg = config.enemies
+        boss_cfg = enemy_cfg.enemy_types["boss"]
+        world_cfg = config.world
+        
+        cx, cy, cw, ch = viewport
+        angle = random.random() * math.pi * 2
+        dist = max(cw, ch) / 2 + enemy_cfg.spawn_distance_margin
+        
+        sx = player.x + math.cos(angle) * dist
+        sy = player.y + math.sin(angle) * dist
+        
+        # Clamp to map
+        edge_margin = 100.0 # Boss is big
+        map_size = world_cfg.map_size
+        sx = max(edge_margin, min(map_size - edge_margin, sx))
+        sy = max(edge_margin, min(map_size - edge_margin, sy))
+        
+        hp = boss_cfg.hp_base
+        armor = boss_cfg.armor_base
+        speed = boss_cfg.speed_base
+        dmg = boss_cfg.damage_base
+        
+        # Try to find inactive boss or create new
+        spawned = False
+        for e in enemies:
+            if not e.active and e.type_name == "boss":
+                e.active = True
+                e.is_elite = False
+                e.size = boss_cfg.size_normal
+                e.x, e.y = sx, sy
+                e.hp, e.max_hp = hp, hp
+                e.speed = speed
+                e.damage = dmg
+                e.armor = armor
+                spawned = True
+                break
+                
+        if not spawned:
+            enemies.append(Enemy(sx, sy, hp, speed, dmg, armor=armor, is_elite=False, type_name="boss"))
+
 if __name__ == "__main__":
     p = Player()
     enemies = []

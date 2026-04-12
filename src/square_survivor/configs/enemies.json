@@ -22,8 +22,35 @@
         140,
         0
       ],
+      "xp_value": 1,
       "elite_hp_mult": 2.0,
       "elite_armor_mult": 1.5
+    },
+    "boss": {
+      "hp_base": 300.0,
+      "hp_scale_per_sec": 0.0,
+      "speed_base": 100.0,
+      "speed_variance": 0.0,
+      "speed_scale_per_sec": 0.0,
+      "damage_base": 50.0,
+      "damage_scale_per_sec": 0.0,
+      "armor_base": 20.0,
+      "armor_scale_per_sec": 0.0,
+      "size_normal": 100,
+      "size_elite": 100,
+      "color_normal": [
+        160,
+        32,
+        240
+      ],
+      "color_elite": [
+        160,
+        32,
+        240
+      ],
+      "xp_value": 50,
+      "elite_hp_mult": 1.0,
+      "elite_armor_mult": 1.0
     }
   },
   "spawn_base_count": 20,

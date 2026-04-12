@@ -72,14 +72,14 @@
     },
     "magnetism": {
       "name": "Magnetism",
-      "description": "Pickup Radius +50%",
+      "description": "Pickup Radius +100%",
       "likelihood": 500,
       "is_active": true,
       "effects": [
         {
           "stat": "pickup_radius",
           "op": "mul",
-          "value": 1.5
+          "value": 2.0
         }
       ]
     },
